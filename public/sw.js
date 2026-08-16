@@ -1,4 +1,5 @@
-const CACHE = "hubb-shell-v4";
+const CACHE = "hubb-shell-v5";
+const NAVIGATION_TIMEOUT_MS = 4000;
 const SHELL = [
   "/",
   "/shop",
@@ -22,17 +23,43 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+async function networkFirst(request) {
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error("network-timeout")), NAVIGATION_TIMEOUT_MS);
+  });
+  try {
+    const response = await Promise.race([fetch(request), timeout]);
+    if (response.ok) {
+      const copy = response.clone();
+      void caches.open(CACHE).then((cache) => cache.put(request, copy));
+    }
+    return response;
+  } catch {
+    return (await caches.match(request)) || (await caches.match("/")) || new Response("HUBB is offline. Try again when your connection returns.", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
+}
+
+async function staleWhileRevalidate(request) {
+  const cached = await caches.match(request);
+  const network = fetch(request).then((response) => {
+    if (response.ok) {
+      const copy = response.clone();
+      void caches.open(CACHE).then((cache) => cache.put(request, copy));
+    }
+    return response;
+  }).catch(() => undefined);
+  return cached || (await network) || Response.error();
+}
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET" || new URL(event.request.url).origin !== self.location.origin) return;
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response.ok && event.request.destination !== "video") {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-        }
-        return response;
-      })
-      .catch(() => caches.match(event.request).then((cached) => cached || (event.request.mode === "navigate" ? caches.match("/") : Response.error()))),
-  );
+  if (event.request.destination === "video") return;
+  if (event.request.mode === "navigate") {
+    event.respondWith(networkFirst(event.request));
+    return;
+  }
+  event.respondWith(staleWhileRevalidate(event.request));
 });

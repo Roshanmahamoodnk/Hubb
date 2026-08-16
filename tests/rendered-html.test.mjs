@@ -83,6 +83,26 @@ test("renders the real seven-pack film and short human launch copy", async () =>
   assert.ok(mp4.size > 500_000 && mp4.size < 5_000_000);
 });
 
+test("keeps the first viewport free of external font and eager-film blockers", async () => {
+  const response = await render("/");
+  const html = await response.text();
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const home = await readFile(new URL("../components/home-experience.tsx", import.meta.url), "utf8");
+
+  assert.doesNotMatch(css, /fonts\.googleapis\.com/);
+  assert.match(css, /space-grotesk\.woff2/);
+  assert.match(css, /noto-kufi-arabic\.woff2/);
+  assert.match(html, /<video[^>]*preload="none"/i);
+  assert.doesNotMatch(html, /<video[^>]*autoplay/i);
+  assert.match(home, /useMotionValue/);
+  assert.doesNotMatch(home, /useState\(\{ x: 0, y: 0 \}\)/);
+
+  for (const name of ["space-grotesk.woff2", "noto-kufi-arabic.woff2", "noto-kufi-latin.woff2"]) {
+    const font = await stat(new URL(`../public/fonts/${name}`, import.meta.url));
+    assert.ok(font.size > 10_000 && font.size < 200_000, name);
+  }
+});
+
 test("keeps add-to-bag non-disruptive", async () => {
   const source = await readFile(new URL("../components/cart-provider.tsx", import.meta.url), "utf8");
   const addBody = source.slice(source.indexOf("const add ="), source.indexOf("const addBundle ="));
@@ -97,6 +117,16 @@ test("serves an installable manifest with HUBB shortcuts", async () => {
   assert.equal(manifest.display, "standalone");
   assert.equal(manifest.icons.length, 2);
   assert.deepEqual(manifest.shortcuts.map((item) => item.url), ["/shop", "/taste-lab"]);
+});
+
+test("updates the installed app without hanging on a weak connection", async () => {
+  const serviceWorker = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
+  const registration = await readFile(new URL("../components/experience-layer.tsx", import.meta.url), "utf8");
+  assert.match(serviceWorker, /hubb-shell-v5/);
+  assert.match(serviceWorker, /NAVIGATION_TIMEOUT_MS = 4000/);
+  assert.match(serviceWorker, /staleWhileRevalidate/);
+  assert.match(registration, /document\.readyState === "complete"/);
+  assert.match(registration, /registration\.update\(\)/);
 });
 
 test("keeps the seven-box saving aligned with the future server total", async () => {

@@ -5,7 +5,7 @@ import { CartProvider } from "@/components/cart-provider";
 import { SiteShell } from "@/components/site-shell";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://hubb-seeds.r0shan911.chatgpt.site"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://hubb-seeds.onrender.com"),
   title: {
     default: "HUBB حُبّ — النكهة في اللُّب",
     template: "%s · HUBB حُبّ",
@@ -44,13 +44,17 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     "@context": "https://schema.org",
     "@type": "Organization",
     name: "HUBB حُبّ",
-    url: process.env.NEXT_PUBLIC_SITE_URL || "https://hubb-seeds.r0shan911.chatgpt.site",
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://hubb-seeds.onrender.com",
     logo: "/brand/hubb-logo.webp",
     foundingLocation: { "@type": "Country", name: "Saudi Arabia" },
     description: "A modern Saudi sunflower-seed brand built around the perfect crack.",
   };
   return (
     <html lang="ar" dir="ltr">
+      <head>
+        <link rel="preload" href="/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/noto-kufi-arabic.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+      </head>
       <body>
         <CartProvider><SiteShell>{children}</SiteShell></CartProvider>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organization) }} />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import { ProductCard, SensoryBars } from "@/components/product-card";
 import { Reveal } from "@/components/reveal";
 import { useCart } from "@/components/cart-provider";
@@ -14,12 +14,16 @@ type Language = "ar" | "en";
 function Hero({ language }: { language: Language }) {
   const [active, setActive] = useState(0);
   const [autoRotate, setAutoRotate] = useState(true);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const smoothTiltX = useSpring(tiltX, { stiffness: 260, damping: 28, mass: 0.35 });
+  const smoothTiltY = useSpring(tiltY, { stiffness: 260, damping: 28, mass: 0.35 });
   const { add } = useCart();
   const flavor = flavors[active];
   const onMove = (event: PointerEvent<HTMLElement>) => {
     const box = event.currentTarget.getBoundingClientRect();
-    setTilt({ x: ((event.clientX - box.left) / box.width - 0.5) * 10, y: ((event.clientY - box.top) / box.height - 0.5) * -8 });
+    tiltX.set(((event.clientX - box.left) / box.width - 0.5) * 10);
+    tiltY.set(((event.clientY - box.top) / box.height - 0.5) * -8);
   };
 
   useEffect(() => {
@@ -29,7 +33,7 @@ function Hero({ language }: { language: Language }) {
   }, [autoRotate]);
 
   return (
-    <section className="v2-hero" style={{ "--flavor": flavor.color, "--pale": flavor.pale, "--ink": flavor.ink } as CSSProperties} onPointerMove={onMove} onPointerLeave={() => setTilt({ x: 0, y: 0 })}>
+    <section className="v2-hero" style={{ "--flavor": flavor.color, "--pale": flavor.pale, "--ink": flavor.ink } as CSSProperties} onPointerMove={onMove} onPointerLeave={() => { tiltX.set(0); tiltY.set(0); }}>
       <div className="hero-noise" />
       <div className="hero-orbit" aria-hidden="true"><span>CRACK</span><i>ذوق</i><span>REPEAT</span><i>حُبّ</i></div>
       <div className="hero-copy">
@@ -50,7 +54,7 @@ function Hero({ language }: { language: Language }) {
       <div className="hero-pack-stage">
         <span className="paint-swipe" />
         <AnimatePresence mode="wait">
-          <motion.img key={flavor.id} src={flavor.image} alt={`HUBB ${flavor.en}`} initial={{ opacity: 0, scale: .86, rotate: -4 }} animate={{ opacity: 1, scale: 1, rotateX: tilt.y, rotateY: tilt.x }} exit={{ opacity: 0, scale: 1.08, rotate: 4 }} transition={{ duration: .62, ease: [0.16, 1, 0.3, 1] }} />
+          <motion.img key={flavor.id} src={flavor.image} alt={`HUBB ${flavor.en}`} loading="eager" fetchPriority="high" decoding="async" initial={{ opacity: 0, scale: .86, rotate: -4 }} animate={{ opacity: 1, scale: 1 }} style={{ rotateX: smoothTiltY, rotateY: smoothTiltX }} exit={{ opacity: 0, scale: 1.08, rotate: 4 }} transition={{ duration: .62, ease: [0.16, 1, 0.3, 1] }} />
         </AnimatePresence>
         <small>MOVE TO FEEL THE PACK · حرّك المؤشر</small>
       </div>
@@ -85,7 +89,7 @@ function TasteSwitchboard() {
           <AnimatePresence mode="wait"><motion.div key={flavor.id} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}>
             <span>{flavor.ritual}</span><h3>{flavor.moodEn}</h3><p lang="ar">{flavor.noteAr}</p><SensoryBars flavor={flavor} />
           </motion.div></AnimatePresence>
-          <img src={flavor.image} alt={`${flavor.en} flavor`} />
+          <img src={flavor.image} alt={`${flavor.en} flavor`} loading="lazy" decoding="async" />
         </div>
       </div>
     </section>
@@ -103,7 +107,7 @@ function RememberedTaste() {
   if (!flavor) return null;
   return (
     <motion.aside className="remembered-taste" style={{ "--remembered": flavor.color } as CSSProperties} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}>
-      <img src={flavor.image} alt="" />
+      <img src={flavor.image} alt="" loading="lazy" decoding="async" />
       <div><span>WELCOME BACK · أهلًا برجعتك</span><h2>Your last match was <em>{flavor.en}.</em></h2><p>Still your mood? Pick up where you left off.</p></div>
       <button data-cursor="ADD" onClick={() => add(flavor.id)}>ADD {flavor.en.toUpperCase()} <b>{formatSar(flavor.priceSar)}</b></button>
     </motion.aside>
@@ -140,7 +144,7 @@ function MomentPicker() {
       </div>
       <AnimatePresence mode="wait">
         <motion.div className="moment-result" key={moment.id} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }}>
-          <img src={flavor.image} alt={`HUBB ${flavor.en}`} />
+          <img src={flavor.image} alt={`HUBB ${flavor.en}`} loading="lazy" decoding="async" />
           <div><span>TRY THIS · جرّب</span><h3>{flavor.ar}</h3><h4>{flavor.en}</h4><p>{moment.line}</p><button data-cursor="ADD" onClick={() => add(flavor.id)}>ADD TO BAG <b>{formatSar(flavor.priceSar)}</b></button></div>
         </motion.div>
       </AnimatePresence>
@@ -151,12 +155,24 @@ function MomentPicker() {
 function FilmStage() {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const stageRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reducedMotion = Boolean(useReducedMotion());
   const flavor = flavors[active];
 
   useEffect(() => {
     if (reducedMotion) videoRef.current?.pause();
+  }, [reducedMotion]);
+
+  useEffect(() => {
+    if (reducedMotion || !stageRef.current) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      void videoRef.current?.play().catch(() => undefined);
+      observer.disconnect();
+    }, { rootMargin: "320px 0px" });
+    observer.observe(stageRef.current);
+    return () => observer.disconnect();
   }, [reducedMotion]);
 
   const toggle = async () => {
@@ -178,9 +194,9 @@ function FilmStage() {
   };
 
   return (
-    <section className="film-stage" id="film">
+    <section className="film-stage" id="film" ref={stageRef}>
       <div className="film-frame film-is-real">
-        <video ref={videoRef} autoPlay={!reducedMotion} muted loop playsInline preload="metadata" poster="/video/hubb-seven-worlds-poster.webp" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onTimeUpdate={(event) => setActive(Math.min(6, Math.floor(event.currentTarget.currentTime / 2.15)))}>
+        <video ref={videoRef} muted loop playsInline preload="none" poster="/video/hubb-seven-worlds-poster.webp" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onTimeUpdate={(event) => setActive(Math.min(6, Math.floor(event.currentTarget.currentTime / 2.15)))}>
           <source src="/video/hubb-seven-worlds.webm" type="video/webm" />
           <source src="/video/hubb-seven-worlds.mp4" type="video/mp4" />
         </video>
@@ -201,7 +217,7 @@ function RitualScroll() {
   return (
     <section className="ritual-scroll" ref={section}>
       <div className="ritual-sticky">
-        <div className="ritual-visual"><motion.div className="seed-shell" style={{ rotate: spin }}><i /><i /></motion.div><motion.img src="/products/classic.webp" alt="HUBB Classic pack" style={{ y: rise }} /></div>
+        <div className="ritual-visual"><motion.div className="seed-shell" style={{ rotate: spin }}><i /><i /></motion.div><motion.img src="/products/classic.webp" alt="HUBB Classic pack" loading="lazy" decoding="async" style={{ y: rise }} /></div>
         <div className="ritual-story">
           <p className="section-kicker">THE HUBB RITUAL · طقس حُبّ</p>
           <h2>POSITION.<br />CRACK.<br /><em>REVEAL.</em></h2>
@@ -227,11 +243,11 @@ export function HomeExperience({ initialLanguage }: { initialLanguage: Language 
       <section className="home-shop">
         <div className="section-heading"><p className="section-kicker">THE FIRST FOUR · أول أربع قرمشات</p><h2>PICK ONE.<br /><em>PASS IT ON.</em></h2><Link href="/shop">SHOP ALL 7 ↗</Link></div>
         <div className="product-grid">{flavors.slice(0, 4).map((flavor) => <ProductCard flavor={flavor} key={flavor.id} />)}</div>
-        <div className="bundle-banner"><div><span>7 × 100G · SAVE SAR 3</span><h3>{starterBundle.ar}</h3><h2>{starterBundle.en}</h2><p>All seven. Put them on the table and watch which color disappears first.</p></div><div className="bundle-packs">{flavors.map((flavor, index) => <img key={flavor.id} src={flavor.image} alt="" style={{ "--i": index } as CSSProperties} />)}</div><button data-cursor="ADD 7" onClick={() => addBundle(flavors.map((flavor) => flavor.id))}>ADD ALL SEVEN <b>{formatSar(starterBundle.priceSar)}</b></button></div>
+        <div className="bundle-banner"><div><span>7 × 100G · SAVE SAR 3</span><h3>{starterBundle.ar}</h3><h2>{starterBundle.en}</h2><p>All seven. Put them on the table and watch which color disappears first.</p></div><div className="bundle-packs">{flavors.map((flavor, index) => <img key={flavor.id} src={flavor.image} alt="" loading="lazy" decoding="async" style={{ "--i": index } as CSSProperties} />)}</div><button data-cursor="ADD 7" onClick={() => addBundle(flavors.map((flavor) => flavor.id))}>ADD ALL SEVEN <b>{formatSar(starterBundle.priceSar)}</b></button></div>
       </section>
       <section className="maker-section"><div className="maker-art"><span className="maker-brush">حُبّ</span><i className="maker-print" /></div><div><p className="section-kicker">MADE BY A HAND, NOT A TEMPLATE</p><h2>SAUDI CRAFT.<br /><em>DRAWN FOR NOW.</em></h2><p>The brush, thumbprint and modern Sadu rhythm stay a little imperfect on purpose. Each color changes the mood. The family still feels like HUBB.</p><Link href="/story">READ THE DESIGN STORY ↗</Link></div></section>
       <section className="journal-preview"><div className="section-heading"><p className="section-kicker">THE CRACK JOURNAL · مجلة حُبّ</p><h2>KNOW YOUR<br /><em>SEED.</em></h2><Link href="/journal">READ ALL ↗</Link></div><div className="journal-grid">{journalPosts.map((post, index) => <Link href={`/journal/${post.slug}`} key={post.slug}><span>0{index + 1}</span><p>{post.eyebrow}</p><h3>{post.titleAr}</h3><h4>{post.title}</h4><small>{post.readingTime} · READ ↗</small></Link>)}</div></section>
-      <section className="final-crack"><img src="/products/classic.webp" alt="HUBB Classic" /><div><span>ONE BAG IS ENOUGH TO START.</span><h2>اختر لونك.<br /><em>وخله يدور.</em></h2><Link href="/shop">PICK YOUR FIRST ↗</Link></div></section>
+      <section className="final-crack"><img src="/products/classic.webp" alt="HUBB Classic" loading="lazy" decoding="async" /><div><span>ONE BAG IS ENOUGH TO START.</span><h2>اختر لونك.<br /><em>وخله يدور.</em></h2><Link href="/shop">PICK YOUR FIRST ↗</Link></div></section>
     </main>
   );
 }

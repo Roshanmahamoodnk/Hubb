@@ -11,11 +11,44 @@ type InstallPromptEvent = Event & {
 function ServiceWorkerRegister() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
-    const register = () => navigator.serviceWorker.register("/sw.js").catch(() => undefined);
-    window.addEventListener("load", register, { once: true });
-    return () => window.removeEventListener("load", register);
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    let refreshing = false;
+    const refreshForUpdate = () => {
+      if (!hadController || refreshing) return;
+      refreshing = true;
+      window.location.reload();
+    };
+    const register = () => {
+      void navigator.serviceWorker.register("/sw.js")
+        .then((registration) => registration.update())
+        .catch(() => undefined);
+    };
+    if (document.readyState === "complete") register();
+    else window.addEventListener("load", register, { once: true });
+    navigator.serviceWorker.addEventListener("controllerchange", refreshForUpdate);
+    return () => {
+      window.removeEventListener("load", register);
+      navigator.serviceWorker.removeEventListener("controllerchange", refreshForUpdate);
+    };
   }, []);
   return null;
+}
+
+function ReadyCue() {
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setVisible(false), 900);
+    return () => window.clearTimeout(timer);
+  }, []);
+  return (
+    <AnimatePresence>
+      {visible ? (
+        <motion.div className="site-ready" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: 8 }} role="status" aria-live="polite">
+          <i aria-hidden="true" /><small>READY TO CRACK · جاهز</small>
+        </motion.div>
+      ) : null}
+    </AnimatePresence>
+  );
 }
 
 function PointerHalo() {
@@ -129,6 +162,7 @@ export function ExperienceLayer() {
   return (
     <>
       <ServiceWorkerRegister />
+      <ReadyCue />
       <PointerHalo />
       <ScrollSignal />
       <InstallPrompt />
