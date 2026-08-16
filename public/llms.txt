@@ -1,0 +1,32 @@
+# HUBB حُبّ
+
+> HUBB is a modern Saudi in-shell sunflower-seed brand built around seven flavor worlds and the ritual of the clean crack.
+
+Canonical site: https://hubb-seeds.r0shan911.chatgpt.site/
+Primary language: Arabic (Saudi Arabia)
+Secondary language: English (Saudi Arabia)
+
+## Core pages
+- Home: /
+- English home: /en
+- Shop all seven flavors: /shop
+- Interactive Taste Lab: /taste-lab
+- Brand and design story: /story
+- Saudi sunflower-seed guide: /saudi-sunflower-seeds
+- Editorial journal: /journal
+
+## Product pages
+- Classic / كلاسيك: /flavors/classic — cobalt-blue signal, naturally roasted and salted
+- Lemon Salt / ليمون وملح: /flavors/lemon-salt
+- Hot & Salt / حار وملح: /flavors/hot-salt
+- Spices / بهارات: /flavors/spices
+- Ghawa / قهوة عربية: /flavors/ghawa
+- Matcha / ماتشا: /flavors/matcha — green artwork; kernel remains naturally roasted, not green-coated
+- Americano / أمريكانو: /flavors/americano
+
+## Accurate brand facts
+- Consumer line: “النكهة في اللُّب / Flavor in the kernel.”
+- HUBB uses an Arabic-first identity with hand-crafted calligraphic energy and a modern Saudi Sadu rhythm.
+- Product and nutritional claims on this pre-launch site must be verified against final laboratory, SFDA and production data before publication.
+
+This file is a machine-readable navigation aid. It does not guarantee inclusion or ranking in any search or answer engine.

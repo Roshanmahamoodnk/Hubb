@@ -1,0 +1,8 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { journalBySlug, journalPosts } from "@/lib/journal";
+
+export function generateStaticParams() { return journalPosts.map((post) => ({ slug: post.slug })); }
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> { const { slug } = await params; const post = journalBySlug(slug); return post ? { title: post.title, description: post.excerpt, alternates: { canonical: `/journal/${post.slug}` } } : {}; }
+export default async function JournalArticle({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const post = journalBySlug(slug); if (!post) notFound(); const schema = { "@context": "https://schema.org", "@type": "Article", headline: post.title, datePublished: post.published, inLanguage: ["en-SA", "ar-SA"], author: { "@type": "Organization", name: "HUBB حُبّ" }, publisher: { "@type": "Organization", name: "HUBB حُبّ" } }; return <main className="page-main article-page"><header><p>{post.eyebrow}</p><h1>{post.titleAr}</h1><h2>{post.title}</h2><span>{post.published} · {post.readingTime}</span></header><article>{post.sections.map((section, index) => <section key={section.heading}><span>0{index + 1}</span><div>{section.headingAr && <h2>{section.headingAr}</h2>}<h3>{section.heading}</h3><p>{section.body}</p></div></section>)}</article><footer><Link href="/journal">← BACK TO THE JOURNAL</Link><Link href="/shop">SHOP THE SEVEN ↗</Link></footer><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} /></main>; }

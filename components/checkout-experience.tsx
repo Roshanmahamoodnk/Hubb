@@ -1,0 +1,16 @@
+"use client";
+
+import Link from "next/link";
+import { FormEvent, useState } from "react";
+import { useCart } from "@/components/cart-provider";
+import { flavorById, formatSar } from "@/lib/catalog";
+import { getSupabaseBrowserClient } from "@/lib/supabase";
+
+export function CheckoutExperience() {
+  const { lines, subtotal, clear } = useCart();
+  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  const submit = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const client = getSupabaseBrowserClient(); if (!client) { setStatus("Checkout is designed and ready. Connect the dedicated HUBB Supabase project and Saudi payment gateway to accept live orders."); return; } const { data: { user } } = await client.auth.getUser(); if (!user) { setStatus("Sign in to place an order securely."); return; } const form = new FormData(event.currentTarget); setBusy(true); const shipping = Object.fromEntries(["name", "phone", "city", "address"].map((key) => [key, form.get(key)])); const { data, error } = await client.rpc("create_order", { cart_input: lines.map((line) => ({ product_id: line.productId, quantity: line.quantity })), shipping_input: shipping }); setBusy(false); if (error) setStatus(error.message); else { clear(); setStatus(`Order ${data} created. Payment handoff is ready for the selected gateway.`); } };
+  if (!lines.length) return <main className="page-main checkout-page"><div className="checkout-empty"><h1>NO CRACKS<br /><em>TO CHECK OUT.</em></h1><Link href="/shop">BUILD YOUR BAG ↗</Link></div></main>;
+  return <main className="page-main checkout-page"><header><p>SECURE CHECKOUT · إتمام الطلب</p><h1>ONE LAST<br /><em>CRACK.</em></h1></header><div className="checkout-layout"><form onSubmit={submit}><fieldset><legend><span>01</span> DELIVERY SIGNAL</legend><label>FULL NAME<input name="name" required /></label><div><label>SAUDI MOBILE<input name="phone" inputMode="tel" required placeholder="05XXXXXXXX" /></label><label>CITY<select name="city" required defaultValue="Riyadh"><option>Riyadh</option><option>Jeddah</option><option>Dammam</option><option>Khobar</option><option>Other GCC city</option></select></label></div><label>ADDRESS<textarea name="address" required rows={3} /></label></fieldset><fieldset><legend><span>02</span> PAYMENT PORTAL</legend><div className="payment-options"><label><input type="radio" name="payment" defaultChecked value="mada" /><b>mada</b><small>Gateway connection required</small></label><label><input type="radio" name="payment" value="apple-pay" /><b>Apple Pay</b><small>Gateway connection required</small></label><label><input type="radio" name="payment" value="stc-pay" /><b>stc pay</b><small>Gateway connection required</small></label></div></fieldset><button disabled={busy}>{busy ? "SECURING ORDER…" : `PLACE SECURE ORDER · ${formatSar(subtotal)}`}</button>{status && <p className="form-status">{status}</p>}</form><aside><p>YOUR SEVEN-WORLD SIGNAL</p>{lines.map((line) => { const item = flavorById(line.productId); return item ? <div key={item.id}><img src={item.image} alt="" /><span><b>{item.ar}</b><small>{item.en} × {line.quantity}</small></span><strong>{formatSar(item.priceSar * line.quantity)}</strong></div> : null; })}<footer><span>TOTAL</span><b>{formatSar(subtotal)}</b></footer></aside></div></main>;
+}
