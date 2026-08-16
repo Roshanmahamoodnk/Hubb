@@ -13,6 +13,7 @@ type Language = "ar" | "en";
 
 function Hero({ language }: { language: Language }) {
   const [active, setActive] = useState(0);
+  const [autoRotate, setAutoRotate] = useState(true);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const { add } = useCart();
   const flavor = flavors[active];
@@ -22,9 +23,10 @@ function Hero({ language }: { language: Language }) {
   };
 
   useEffect(() => {
+    if (!autoRotate) return;
     const timer = window.setInterval(() => setActive((value) => (value + 1) % flavors.length), 6500);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [autoRotate]);
 
   return (
     <section className="v2-hero" style={{ "--flavor": flavor.color, "--pale": flavor.pale, "--ink": flavor.ink } as CSSProperties} onPointerMove={onMove} onPointerLeave={() => setTilt({ x: 0, y: 0 })}>
@@ -54,7 +56,7 @@ function Hero({ language }: { language: Language }) {
       </div>
       <div className="flavor-rail" role="tablist" aria-label="Choose a flavor">
         {flavors.map((item, index) => (
-          <button key={item.id} className={index === active ? "is-active" : ""} onClick={() => setActive(index)} style={{ "--dot": item.color } as CSSProperties} role="tab" aria-selected={index === active}>
+          <button key={item.id} className={index === active ? "is-active" : ""} onClick={() => { setActive(index); setAutoRotate(false); }} style={{ "--dot": item.color } as CSSProperties} role="tab" aria-selected={index === active}>
             <i /> <span>{item.ar}</span><small>{item.en}</small>
           </button>
         ))}
