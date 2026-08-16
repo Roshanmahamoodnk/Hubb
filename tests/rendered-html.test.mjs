@@ -76,6 +76,8 @@ test("renders the real seven-pack film and short human launch copy", async () =>
   assert.match(html, /hubb-seven-worlds\.mp4/);
   assert.match(html, /SEVEN FLAVORS/);
   assert.match(html, /START WITH ONE/);
+  assert.match(html, /NOW CRACKING/);
+  assert.match(html, /TASTE NOTES/);
 
   const webm = await stat(new URL("../public/video/hubb-seven-worlds.webm", import.meta.url));
   const mp4 = await stat(new URL("../public/video/hubb-seven-worlds.mp4", import.meta.url));
@@ -110,6 +112,29 @@ test("keeps add-to-bag non-disruptive", async () => {
   assert.match(source, /setNotice/);
 });
 
+test("makes films shoppable and remembers a real flavor choice", async () => {
+  const home = await readFile(new URL("../components/home-experience.tsx", import.meta.url), "utf8");
+  const detail = await readFile(new URL("../components/flavor-experience.tsx", import.meta.url), "utf8");
+  const memory = await readFile(new URL("../lib/taste-memory.ts", import.meta.url), "utf8");
+  assert.match(home, /film-buy-signal/);
+  assert.match(home, /add\(flavor\.id\)/);
+  assert.match(detail, /SAVE AS MY FLAVOR/);
+  assert.match(detail, /preferred_flavor/);
+  assert.match(memory, /hubb-last-flavor/);
+});
+
+test("prepares a useful RLS-backed member dashboard and one-tap reorder", async () => {
+  const account = await readFile(new URL("../components/account-experience.tsx", import.meta.url), "utf8");
+  const provider = await readFile(new URL("../components/cart-provider.tsx", import.meta.url), "utf8");
+  const checkout = await readFile(new URL("../components/checkout-experience.tsx", import.meta.url), "utf8");
+  assert.match(account, /from\("profiles"\)/);
+  assert.match(account, /from\("orders"\)/);
+  assert.match(account, /order_items\(product_id,quantity,unit_price_sar\)/);
+  assert.match(account, /REORDER/);
+  assert.match(provider, /const addLines/);
+  assert.match(checkout, /Your bag will still be here/);
+});
+
 test("serves an installable manifest with HUBB shortcuts", async () => {
   const response = await render("/manifest.webmanifest");
   const manifest = await response.json();
@@ -122,7 +147,7 @@ test("serves an installable manifest with HUBB shortcuts", async () => {
 test("updates the installed app without hanging on a weak connection", async () => {
   const serviceWorker = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
   const registration = await readFile(new URL("../components/experience-layer.tsx", import.meta.url), "utf8");
-  assert.match(serviceWorker, /hubb-shell-v5/);
+  assert.match(serviceWorker, /hubb-shell-v6/);
   assert.match(serviceWorker, /NAVIGATION_TIMEOUT_MS = 4000/);
   assert.match(serviceWorker, /staleWhileRevalidate/);
   assert.match(registration, /document\.readyState === "complete"/);
@@ -137,4 +162,5 @@ test("keeps the seven-box saving aligned with the future server total", async ()
   assert.match(sql, /full_set_quantity \* 3\.00/);
   assert.match(sql, /revoke all on function public\.create_order/);
   assert.match(sql, /grant execute on function public\.create_order\(jsonb, jsonb\) to authenticated/);
+  assert.match(sql, /drop policy if exists "orders_select_own_or_admin"/);
 });

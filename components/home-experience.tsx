@@ -8,6 +8,7 @@ import { Reveal } from "@/components/reveal";
 import { useCart } from "@/components/cart-provider";
 import { flavorById, flavors, formatSar, starterBundle, type Flavor } from "@/lib/catalog";
 import { journalPosts } from "@/lib/journal";
+import { readSavedFlavorId } from "@/lib/taste-memory";
 
 type Language = "ar" | "en";
 
@@ -100,7 +101,7 @@ function RememberedTaste() {
   const [flavor, setFlavor] = useState<Flavor | null>(null);
   const { add } = useCart();
   useEffect(() => {
-    const saved = window.localStorage.getItem("hubb-last-flavor");
+    const saved = readSavedFlavorId();
     const sync = window.setTimeout(() => { if (saved) setFlavor(flavorById(saved) ?? null); }, 0);
     return () => window.clearTimeout(sync);
   }, []);
@@ -158,6 +159,7 @@ function FilmStage() {
   const stageRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const reducedMotion = Boolean(useReducedMotion());
+  const { add } = useCart();
   const flavor = flavors[active];
 
   useEffect(() => {
@@ -194,7 +196,7 @@ function FilmStage() {
   };
 
   return (
-    <section className="film-stage" id="film" ref={stageRef}>
+    <section className="film-stage" id="film" ref={stageRef} style={{ "--film-accent": flavor.color, "--film-pale": flavor.pale } as CSSProperties}>
       <div className="film-frame film-is-real">
         <video ref={videoRef} muted loop playsInline preload="none" poster="/video/hubb-seven-worlds-poster.webp" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onTimeUpdate={(event) => setActive(Math.min(6, Math.floor(event.currentTarget.currentTime / 2.15)))}>
           <source src="/video/hubb-seven-worlds.webm" type="video/webm" />
@@ -203,6 +205,14 @@ function FilmStage() {
         <div className="film-shade" />
         <button className="film-play" data-cursor={playing ? "PAUSE" : "PLAY"} aria-label={playing ? "Pause HUBB brand film" : "Play HUBB brand film"} onClick={toggle}><span>{playing ? "Ⅱ" : "▶"}</span><small>{playing ? "PAUSE" : "PLAY"}<br />00:15 BRAND FILM</small></button>
         <div className="film-copy"><p>{flavor.number} / 07 · {flavor.ar}</p><h2>SEVEN WORLDS.<br /><em>ONE CRACK.</em></h2><span>PACK FILM · SOUND OFF · MADE FROM THE REAL HUBB SERIES</span></div>
+        <AnimatePresence mode="wait">
+          <motion.aside className="film-buy-signal" key={flavor.id} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
+            <img src={flavor.image} alt="" loading="lazy" decoding="async" />
+            <div><span>NOW CRACKING · الآن</span><b lang="ar">{flavor.ar}</b><small>{flavor.en}</small></div>
+            <button data-cursor="ADD" onClick={() => add(flavor.id)}>ADD <b>{formatSar(flavor.priceSar)}</b></button>
+            <Link href={`/flavors/${flavor.id}`}>TASTE NOTES ↗</Link>
+          </motion.aside>
+        </AnimatePresence>
       </div>
       <div className="film-chapters">{flavors.map((item, index) => <button key={item.id} className={index === active ? "is-active" : ""} style={{ "--chapter": item.color } as CSSProperties} onClick={() => jump(index)}><span>{item.number}</span>{item.en}</button>)}</div>
     </section>

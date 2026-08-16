@@ -85,6 +85,7 @@ export function SiteHeader() {
               <Link href={item.href} key={item.href} onClick={() => setMenuOpen(false)}><span>0{index + 1}</span><b>{item.ar}</b><small>{item.en}</small></Link>
             ))}
             <Link href="/saudi-sunflower-seeds" onClick={() => setMenuOpen(false)}><span>06</span><b>دليل الحب</b><small>SEED GUIDE</small></Link>
+            <Link href="/account" onClick={() => setMenuOpen(false)}><span>07</span><b>حسابي</b><small>FIRST CRACK CLUB</small></Link>
           </motion.nav>
         ) : null}
       </AnimatePresence>

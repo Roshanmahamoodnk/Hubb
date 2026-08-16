@@ -17,6 +17,7 @@ type CartContextValue = {
   subtotal: number;
   savings: number;
   add: (productId: string, quantity?: number) => void;
+  addLines: (lines: CartLine[]) => void;
   addBundle: (productIds: string[]) => void;
   setQuantity: (productId: string, quantity: number) => void;
   remove: (productId: string) => void;
@@ -84,6 +85,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
     };
 
+    const addLines = (incoming: CartLine[]) => {
+      setLines((current) => {
+        const quantities = new Map(current.map((line) => [line.productId, line.quantity]));
+        incoming.forEach(({ productId, quantity }) => {
+          if (!flavorById(productId) || !Number.isInteger(quantity) || quantity < 1) return;
+          quantities.set(productId, Math.min(20, (quantities.get(productId) ?? 0) + quantity));
+        });
+        return Array.from(quantities, ([productId, quantity]) => ({ productId, quantity }));
+      });
+      setNotice({ key: Date.now(), labelEn: "Your last crack", labelAr: "طلبك السابق" });
+    };
+
     const addBundle = (productIds: string[]) => {
       setLines((current) => {
         const quantities = new Map(current.map((line) => [line.productId, line.quantity]));
@@ -125,6 +138,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       subtotal,
       savings,
       add,
+      addLines,
       addBundle,
       setQuantity,
       remove,

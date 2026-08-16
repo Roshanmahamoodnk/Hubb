@@ -1,4 +1,4 @@
-const CACHE = "hubb-shell-v5";
+const CACHE = "hubb-shell-v6";
 const NAVIGATION_TIMEOUT_MS = 4000;
 const SHELL = [
   "/",

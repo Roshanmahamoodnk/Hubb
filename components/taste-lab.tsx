@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/components/cart-provider";
 import { flavors, formatSar } from "@/lib/catalog";
+import { rememberFlavor } from "@/lib/taste-memory";
 
 const questions = [
   { en: "Choose the energy.", ar: "اختر الطاقة.", options: [{ label: "CLEAN & EASY", scores: [0, 0, 0, 0, 0, 0, 0] }, { label: "BRIGHT & LOUD", scores: [1, 4, 2, 1, 0, 2, 0] }, { label: "DARK & FOCUSED", scores: [1, 0, 0, 1, 3, 1, 4] }] },
@@ -20,7 +21,7 @@ export function TasteLab() {
   const resultIndex = useMemo(() => scores.indexOf(Math.max(...scores)), [scores]);
   const result = flavors[resultIndex < 0 ? 0 : resultIndex];
   useEffect(() => {
-    if (step >= questions.length) window.localStorage.setItem("hubb-last-flavor", result.id);
+    if (step >= questions.length) rememberFlavor(result.id);
   }, [result.id, step]);
   const answer = (next: number[]) => { setScores((current) => current.map((value, index) => value + next[index])); setStep((value) => value + 1); };
   const reset = () => { setStep(0); setScores(Array(7).fill(0)); };

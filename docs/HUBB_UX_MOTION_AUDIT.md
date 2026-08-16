@@ -101,6 +101,16 @@ Avoid:
 
 The current film is an honest pack study made from approved product imagery. It does not pretend to show customers, a factory or a Saudi location. The real production phase should replace or extend it with macro seed cracking, real hands, real match-night/majlis use and recorded crack sound. Matcha kernels must remain naturally roasted, never green-coated.
 
+## V6 conversion pass
+
+The film is now a shopping surface without becoming an advert grid. Its chapter rail controls the active SKU, and a compact card follows that chapter with the real pack, Arabic and English flavor name, price, taste-note link and add action. Video remains `preload="none"`; commerce was added without bringing the film into the first-load path.
+
+Taste memory now has one honest rule: HUBB remembers one preferred flavor on the customer’s device. The Taste Lab and flavor detail pages write to the same preference, the home page welcomes the choice back, and the account surface lets a member change it across all seven colors. When a dedicated Supabase project is connected, the preference also syncs to the member’s own RLS-protected profile.
+
+The signed-in account is no longer a placeholder. It is prepared to show recent orders and their SKU packs, status, total and date, then rebuild the exact order in the device-local bag with one tap. Checkout sends unsigned customers to sign in with explicit reassurance that their bag stays on the device. The mobile menu now exposes the account directly.
+
+Release checks: 12 rendered-route and source-invariant tests pass, the bounded Vinext production build passes, the install cache is versioned to V6, and lint has no errors. Product photography intentionally remains on plain `<img>` elements in the current static-export architecture; the remaining lint notices are advisory image-optimization warnings, not runtime failures.
+
 ## Remaining production priorities
 
 1. Shoot one 15-second macro ritual film and seven 6-second SKU loops.

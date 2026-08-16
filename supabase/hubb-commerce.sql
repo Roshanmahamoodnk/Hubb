@@ -67,6 +67,16 @@ grant select on public.products to anon, authenticated;
 grant insert, update, delete on public.products to authenticated;
 grant select on public.orders, public.order_items to authenticated;
 
+drop policy if exists "profiles_select_own" on public.profiles;
+drop policy if exists "profiles_update_own" on public.profiles;
+drop policy if exists "products_public_read_active" on public.products;
+drop policy if exists "products_admin_insert" on public.products;
+drop policy if exists "products_admin_update" on public.products;
+drop policy if exists "products_admin_delete" on public.products;
+drop policy if exists "orders_select_own_or_admin" on public.orders;
+drop policy if exists "orders_admin_update" on public.orders;
+drop policy if exists "order_items_select_own_or_admin" on public.order_items;
+
 create policy "profiles_select_own" on public.profiles for select to authenticated using ((select auth.uid()) = id);
 create policy "profiles_update_own" on public.profiles for update to authenticated using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
 
@@ -167,6 +177,11 @@ on conflict (id) do update set sku = excluded.sku, name_en = excluded.name_en, n
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('product-media','product-media',true,10485760,array['image/png','image/jpeg','image/webp','video/mp4'])
 on conflict (id) do nothing;
+
+drop policy if exists "product_media_public_read" on storage.objects;
+drop policy if exists "product_media_admin_insert" on storage.objects;
+drop policy if exists "product_media_admin_update" on storage.objects;
+drop policy if exists "product_media_admin_delete" on storage.objects;
 
 create policy "product_media_public_read" on storage.objects for select to public using (bucket_id = 'product-media');
 create policy "product_media_admin_insert" on storage.objects for insert to authenticated with check (bucket_id = 'product-media' and ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'));
