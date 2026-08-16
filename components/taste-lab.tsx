@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/components/cart-provider";
 import { flavors, formatSar } from "@/lib/catalog";
@@ -19,18 +19,21 @@ export function TasteLab() {
   const { add } = useCart();
   const resultIndex = useMemo(() => scores.indexOf(Math.max(...scores)), [scores]);
   const result = flavors[resultIndex < 0 ? 0 : resultIndex];
+  useEffect(() => {
+    if (step >= questions.length) window.localStorage.setItem("hubb-last-flavor", result.id);
+  }, [result.id, step]);
   const answer = (next: number[]) => { setScores((current) => current.map((value, index) => value + next[index])); setStep((value) => value + 1); };
   const reset = () => { setStep(0); setScores(Array(7).fill(0)); };
   return (
     <main className="page-main taste-lab-page" style={{ "--result": result.color } as CSSProperties}>
-      <div className="lab-intro"><span>TASTE LAB / مختبر النكهة</span><h1>FOUR QUESTIONS.<br /><em>ONE CRACK.</em></h1><p>No horoscope. No filler. Just the flavor profile that fits your heat, roast and ritual.</p></div>
+      <div className="lab-intro"><span>TASTE LAB / مختبر النكهة</span><h1>FOUR TAPS.<br /><em>ONE BAG.</em></h1><p>Tell us the heat, the mood and where you’re going. We’ll pick tonight’s crack.</p></div>
       <div className="lab-machine">
         <div className="lab-progress">{questions.map((_, index) => <i key={index} className={index < step ? "is-done" : index === step ? "is-active" : ""} />)}</div>
         <AnimatePresence mode="wait">
           {step < questions.length ? <motion.section key={step} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
             <span>0{step + 1} / 04</span><h2 lang="ar">{questions[step].ar}</h2><h3>{questions[step].en}</h3><div>{questions[step].options.map((option, index) => <button onClick={() => answer(option.scores)} key={option.label}><i>0{index + 1}</i><b>{option.label}</b><span>↗</span></button>)}</div>
           </motion.section> : <motion.section className="lab-result" key="result" initial={{ opacity: 0, scale: .92 }} animate={{ opacity: 1, scale: 1 }}>
-            <div><span>YOUR CRACK IS</span><h2>{result.ar}</h2><h3>{result.en}</h3><p>{result.noteEn}</p><div><button onClick={() => add(result.id)}>ADD TO BAG <b>{formatSar(result.priceSar)}</b></button><Link href={`/flavors/${result.id}`}>ENTER THE FLAVOR ↗</Link></div><button className="lab-reset" onClick={reset}>RETAKE ↻</button></div><img src={result.image} alt={`Your flavor is ${result.en}`} />
+            <div><span>TONIGHT’S BAG</span><h2>{result.ar}</h2><h3>{result.en}</h3><p>{result.noteEn}</p><div><button data-cursor="ADD" onClick={() => add(result.id)}>ADD TO BAG <b>{formatSar(result.priceSar)}</b></button><Link href={`/flavors/${result.id}`}>SEE THE FLAVOR ↗</Link></div><button className="lab-reset" onClick={reset}>TRY AGAIN ↻</button></div><img src={result.image} alt={`Your flavor is ${result.en}`} />
           </motion.section>}
         </AnimatePresence>
       </div>

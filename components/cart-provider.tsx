@@ -1,20 +1,30 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { flavorById } from "@/lib/catalog";
+import { flavorById, flavors, starterBundle } from "@/lib/catalog";
 
 export type CartLine = { productId: string; quantity: number };
+export type CartNotice = {
+  key: number;
+  productId?: string;
+  labelEn: string;
+  labelAr: string;
+};
 
 type CartContextValue = {
   lines: CartLine[];
   count: number;
   subtotal: number;
+  savings: number;
   add: (productId: string, quantity?: number) => void;
+  addBundle: (productIds: string[]) => void;
   setQuantity: (productId: string, quantity: number) => void;
   remove: (productId: string) => void;
   clear: () => void;
   isOpen: boolean;
   setOpen: (open: boolean) => void;
+  notice: CartNotice | null;
+  clearNotice: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -24,6 +34,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [hydrated, setHydrated] = useState(false);
   const [isOpen, setOpen] = useState(false);
+  const [notice, setNotice] = useState<CartNotice | null>(null);
 
   useEffect(() => {
     try {
@@ -64,7 +75,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
         return [...current, { productId, quantity: Math.max(1, Math.min(20, quantity)) }];
       });
-      setOpen(true);
+      const product = flavorById(productId);
+      setNotice({
+        key: Date.now(),
+        productId,
+        labelEn: product?.en ?? "Flavor",
+        labelAr: product?.ar ?? "نكهة",
+      });
+    };
+
+    const addBundle = (productIds: string[]) => {
+      setLines((current) => {
+        const quantities = new Map(current.map((line) => [line.productId, line.quantity]));
+        productIds.forEach((productId) => {
+          quantities.set(productId, Math.min(20, (quantities.get(productId) ?? 0) + 1));
+        });
+        return Array.from(quantities, ([productId, quantity]) => ({ productId, quantity }));
+      });
+      setNotice({ key: Date.now(), labelEn: "Seven Crack Box", labelAr: "صندوق السبع قرمشات" });
     };
 
     const setQuantity = (productId: string, quantity: number) => {
@@ -83,23 +111,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setLines((current) => current.filter((line) => line.productId !== productId));
 
     const count = lines.reduce((total, line) => total + line.quantity, 0);
-    const subtotal = lines.reduce((total, line) => {
+    const grossSubtotal = lines.reduce((total, line) => {
       const product = flavorById(line.productId);
       return total + (product?.priceSar ?? 0) * line.quantity;
     }, 0);
+    const fullSets = lines.length ? Math.min(...flavors.map((flavor) => lines.find((line) => line.productId === flavor.id)?.quantity ?? 0)) : 0;
+    const savings = fullSets * (flavors.reduce((total, flavor) => total + flavor.priceSar, 0) - starterBundle.priceSar);
+    const subtotal = grossSubtotal - savings;
 
     return {
       lines,
       count,
       subtotal,
+      savings,
       add,
+      addBundle,
       setQuantity,
       remove,
       clear: () => setLines([]),
       isOpen,
       setOpen,
+      notice,
+      clearNotice: () => setNotice(null),
     };
-  }, [isOpen, lines]);
+  }, [isOpen, lines, notice]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

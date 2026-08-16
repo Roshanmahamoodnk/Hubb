@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile, stat } from "node:fs/promises";
 import test from "node:test";
 
 const developmentPreviewMeta =
@@ -61,8 +62,49 @@ test("keeps Matcha kernels naturally roasted in visible copy and Product data", 
 });
 
 test("renders discovery, editorial, account and commerce surfaces", async () => {
-  for (const pathname of ["/taste-lab", "/story", "/journal", "/account", "/cart", "/checkout", "/admin", "/saudi-sunflower-seeds"]) {
+  for (const pathname of ["/taste-lab", "/films", "/story", "/journal", "/account", "/cart", "/checkout", "/admin", "/saudi-sunflower-seeds"]) {
     const response = await render(pathname);
     assert.equal(response.status, 200, pathname);
   }
+});
+
+test("renders the real seven-pack film and short human launch copy", async () => {
+  const response = await render("/");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /hubb-seven-worlds\.webm/);
+  assert.match(html, /hubb-seven-worlds\.mp4/);
+  assert.match(html, /SEVEN FLAVORS/);
+  assert.match(html, /START WITH ONE/);
+
+  const webm = await stat(new URL("../public/video/hubb-seven-worlds.webm", import.meta.url));
+  const mp4 = await stat(new URL("../public/video/hubb-seven-worlds.mp4", import.meta.url));
+  assert.ok(webm.size > 500_000 && webm.size < 5_000_000);
+  assert.ok(mp4.size > 500_000 && mp4.size < 5_000_000);
+});
+
+test("keeps add-to-bag non-disruptive", async () => {
+  const source = await readFile(new URL("../components/cart-provider.tsx", import.meta.url), "utf8");
+  const addBody = source.slice(source.indexOf("const add ="), source.indexOf("const addBundle ="));
+  assert.doesNotMatch(addBody, /setOpen\(true\)/);
+  assert.match(source, /setNotice/);
+});
+
+test("serves an installable manifest with HUBB shortcuts", async () => {
+  const response = await render("/manifest.webmanifest");
+  const manifest = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(manifest.display, "standalone");
+  assert.equal(manifest.icons.length, 2);
+  assert.deepEqual(manifest.shortcuts.map((item) => item.url), ["/shop", "/taste-lab"]);
+});
+
+test("keeps the seven-box saving aligned with the future server total", async () => {
+  const provider = await readFile(new URL("../components/cart-provider.tsx", import.meta.url), "utf8");
+  const sql = await readFile(new URL("../supabase/hubb-commerce.sql", import.meta.url), "utf8");
+  assert.match(provider, /starterBundle\.priceSar/);
+  assert.match(sql, /discount_sar/);
+  assert.match(sql, /full_set_quantity \* 3\.00/);
+  assert.match(sql, /revoke all on function public\.create_order/);
+  assert.match(sql, /grant execute on function public\.create_order\(jsonb, jsonb\) to authenticated/);
 });

@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
-import { AnimatePresence, motion, useScroll, useTransform } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { ProductCard, SensoryBars } from "@/components/product-card";
 import { Reveal } from "@/components/reveal";
 import { useCart } from "@/components/cart-provider";
-import { flavors, formatSar, starterBundle } from "@/lib/catalog";
+import { flavorById, flavors, formatSar, starterBundle, type Flavor } from "@/lib/catalog";
 import { journalPosts } from "@/lib/journal";
 
 type Language = "ar" | "en";
@@ -36,14 +36,14 @@ function Hero({ language }: { language: Language }) {
         <motion.span key={`${flavor.id}-num`} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{flavor.number} / 07</motion.span>
         <AnimatePresence mode="wait">
           <motion.div key={`${flavor.id}-copy`} initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.45 }}>
-            <p>{language === "ar" ? "نكهة سعودية بصوت جديد" : "A NEW SAUDI FLAVOR VOICE"}</p>
+            <p>{language === "ar" ? "افتح. اكسر. ذُق." : "OPEN. CRACK. TASTE."}</p>
             <h1 lang="ar">{flavor.ar}</h1>
             <h2>{flavor.en}</h2>
             <blockquote>{language === "ar" ? flavor.moodAr : flavor.moodEn}</blockquote>
           </motion.div>
         </AnimatePresence>
         <div className="hero-ctas">
-          <button onClick={() => add(flavor.id)}>{language === "ar" ? "أضف للحقيبة" : "ADD TO BAG"}<b>{formatSar(flavor.priceSar)}</b></button>
+          <button data-cursor="ADD" onClick={() => add(flavor.id)}>{language === "ar" ? "أضف للحقيبة" : "ADD TO BAG"}<b>{formatSar(flavor.priceSar)}</b></button>
           <Link href={`/flavors/${flavor.id}`}>{language === "ar" ? "اكتشف النكهة" : "ENTER THE FLAVOR"} ↗</Link>
         </div>
       </div>
@@ -72,10 +72,10 @@ function TasteSwitchboard() {
   return (
     <section className="taste-switchboard" style={{ "--flavor": flavor.color, "--pale": flavor.pale } as CSSProperties}>
       <div className="switch-copy">
-        <p className="section-kicker">TASTE, NOT JUST A COLOR · النكهة أولًا</p>
-        <h2>WHAT DOES YOUR<br /><em>MOOD TASTE LIKE?</em></h2>
-        <p>Seven sensory signatures. Tap a color, read the profile, then choose the crack that fits your moment.</p>
-        <Link href="/taste-lab">TAKE THE 30-SECOND TASTE TEST ↗</Link>
+        <p className="section-kicker">PICK BY TASTE · اختر حسب مزاجك</p>
+        <h2>FIND TONIGHT’S<br /><em>CRACK.</em></h2>
+        <p>Tap a flavor. See the salt, heat, roast and aroma before you open the bag.</p>
+        <Link href="/taste-lab">FIND MINE IN 30 SECONDS ↗</Link>
       </div>
       <div className="switch-board">
         <div className="switch-tabs">
@@ -92,20 +92,103 @@ function TasteSwitchboard() {
   );
 }
 
-function FilmStage() {
-  const frames = [
-    { image: "/products/classic.webp", tag: "01 / THE SOUND", title: "HEAR THE CLEAN CRACK." },
-    { image: "/products/lemon-salt.webp", tag: "02 / THE AROMA", title: "OPEN. INHALE. WAKE UP." },
-    { image: "/products/spices.webp", tag: "03 / THE RITUAL", title: "ONE BAG. MANY HANDS." },
-  ];
-  const [active, setActive] = useState(0);
+function RememberedTaste() {
+  const [flavor, setFlavor] = useState<Flavor | null>(null);
+  const { add } = useCart();
+  useEffect(() => {
+    const saved = window.localStorage.getItem("hubb-last-flavor");
+    const sync = window.setTimeout(() => { if (saved) setFlavor(flavorById(saved) ?? null); }, 0);
+    return () => window.clearTimeout(sync);
+  }, []);
+  if (!flavor) return null;
   return (
-    <section className="film-stage">
-      <div className="film-frame" style={{ backgroundImage: `linear-gradient(90deg,rgba(14,12,9,.8),rgba(14,12,9,.08)),url(${frames[active].image})` }}>
-        <button className="film-play" aria-label="Play concept film"><span>▶</span><small>PLAY THE CRACK<br />00:15 CONCEPT FILM</small></button>
-        <div><p>{frames[active].tag}</p><h2>{frames[active].title}</h2><span>REAL-PRODUCTION MEDIA SLOT · READY TO REPLACE IN ADMIN</span></div>
+    <motion.aside className="remembered-taste" style={{ "--remembered": flavor.color } as CSSProperties} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }}>
+      <img src={flavor.image} alt="" />
+      <div><span>WELCOME BACK · أهلًا برجعتك</span><h2>Your last match was <em>{flavor.en}.</em></h2><p>Still your mood? Pick up where you left off.</p></div>
+      <button data-cursor="ADD" onClick={() => add(flavor.id)}>ADD {flavor.en.toUpperCase()} <b>{formatSar(flavor.priceSar)}</b></button>
+    </motion.aside>
+  );
+}
+
+const moments = [
+  { id: "match", ar: "ليلة المباراة", en: "MATCH NIGHT", flavorId: "classic", line: "Easy salt. Busy hands. No missed minutes." },
+  { id: "drive", ar: "مشوار الليل", en: "NIGHT DRIVE", flavorId: "americano", line: "Dark roast for the long way home." },
+  { id: "majlis", ar: "وسط المجلس", en: "MAJLIS", flavorId: "spices", line: "Warm spice for the middle of the table." },
+  { id: "desk", ar: "وقت التركيز", en: "STUDY", flavorId: "matcha", line: "Calm aroma. Naturally roasted kernels." },
+];
+
+function MomentPicker() {
+  const [active, setActive] = useState(0);
+  const { add } = useCart();
+  const moment = moments[active];
+  const flavor = flavorById(moment.flavorId) ?? flavors[0];
+  const pick = (index: number) => {
+    setActive(index);
+    window.localStorage.setItem("hubb-last-moment", moments[index].id);
+  };
+  useEffect(() => {
+    const saved = window.localStorage.getItem("hubb-last-moment");
+    const index = moments.findIndex((item) => item.id === saved);
+    const sync = window.setTimeout(() => { if (index >= 0) setActive(index); }, 0);
+    return () => window.clearTimeout(sync);
+  }, []);
+  return (
+    <section className="moment-picker" style={{ "--moment": flavor.color, "--moment-pale": flavor.pale } as CSSProperties}>
+      <div className="moment-copy"><p className="section-kicker">WHAT’S TONIGHT? · وش جوّ الليلة؟</p><h2>PICK THE<br /><em>MOMENT.</em></h2><p>No quiz. Just tell us where the bag is going.</p></div>
+      <div className="moment-tabs" role="tablist" aria-label="Choose tonight's moment">
+        {moments.map((item, index) => <button key={item.id} role="tab" aria-selected={index === active} className={index === active ? "is-active" : ""} data-cursor="PICK" onClick={() => pick(index)}><span>0{index + 1}</span><b>{item.ar}</b><small>{item.en}</small></button>)}
       </div>
-      <div className="film-chapters">{frames.map((frame, index) => <button key={frame.tag} className={index === active ? "is-active" : ""} onClick={() => setActive(index)}><span>0{index + 1}</span>{frame.title}</button>)}</div>
+      <AnimatePresence mode="wait">
+        <motion.div className="moment-result" key={moment.id} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }}>
+          <img src={flavor.image} alt={`HUBB ${flavor.en}`} />
+          <div><span>TRY THIS · جرّب</span><h3>{flavor.ar}</h3><h4>{flavor.en}</h4><p>{moment.line}</p><button data-cursor="ADD" onClick={() => add(flavor.id)}>ADD TO BAG <b>{formatSar(flavor.priceSar)}</b></button></div>
+        </motion.div>
+      </AnimatePresence>
+    </section>
+  );
+}
+
+function FilmStage() {
+  const [active, setActive] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const reducedMotion = Boolean(useReducedMotion());
+  const flavor = flavors[active];
+
+  useEffect(() => {
+    if (reducedMotion) videoRef.current?.pause();
+  }, [reducedMotion]);
+
+  const toggle = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      await video.play().catch(() => undefined);
+    } else {
+      video.pause();
+    }
+  };
+
+  const jump = async (index: number) => {
+    const video = videoRef.current;
+    setActive(index);
+    if (!video) return;
+    video.currentTime = index * 2.15;
+    await video.play().catch(() => undefined);
+  };
+
+  return (
+    <section className="film-stage" id="film">
+      <div className="film-frame film-is-real">
+        <video ref={videoRef} autoPlay={!reducedMotion} muted loop playsInline preload="metadata" poster="/video/hubb-seven-worlds-poster.webp" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onTimeUpdate={(event) => setActive(Math.min(6, Math.floor(event.currentTarget.currentTime / 2.15)))}>
+          <source src="/video/hubb-seven-worlds.webm" type="video/webm" />
+          <source src="/video/hubb-seven-worlds.mp4" type="video/mp4" />
+        </video>
+        <div className="film-shade" />
+        <button className="film-play" data-cursor={playing ? "PAUSE" : "PLAY"} aria-label={playing ? "Pause HUBB brand film" : "Play HUBB brand film"} onClick={toggle}><span>{playing ? "Ⅱ" : "▶"}</span><small>{playing ? "PAUSE" : "PLAY"}<br />00:15 BRAND FILM</small></button>
+        <div className="film-copy"><p>{flavor.number} / 07 · {flavor.ar}</p><h2>SEVEN WORLDS.<br /><em>ONE CRACK.</em></h2><span>PACK FILM · SOUND OFF · MADE FROM THE REAL HUBB SERIES</span></div>
+      </div>
+      <div className="film-chapters">{flavors.map((item, index) => <button key={item.id} className={index === active ? "is-active" : ""} style={{ "--chapter": item.color } as CSSProperties} onClick={() => jump(index)}><span>{item.number}</span>{item.en}</button>)}</div>
     </section>
   );
 }
@@ -131,22 +214,24 @@ function RitualScroll() {
 }
 
 export function HomeExperience({ initialLanguage }: { initialLanguage: Language }) {
-  const { add } = useCart();
+  const { addBundle } = useCart();
   return (
     <main className="home-v2">
       <Hero language={initialLanguage} />
-      <section className="manifesto"><Reveal><span>حُبّ</span><h2>NOT ANOTHER BLACK SNACK BAG.</h2><p>HUBB turns a familiar Saudi ritual into seven vivid flavor worlds—made to be held, cracked, passed around and remembered.</p><blockquote>سناك مألوف، بتجربة لم ترها من قبل.</blockquote></Reveal></section>
+      <RememberedTaste />
+      <section className="manifesto"><Reveal><span>حُبّ</span><h2>SEVEN FLAVORS.<br />START WITH ONE.</h2><p>A familiar Saudi ritual, redrawn in color. Pick a bag for tonight, pass it around, then reach back in.</p><blockquote>حبة نعرفها. تجربة نبي نكررها.</blockquote></Reveal></section>
       <TasteSwitchboard />
+      <MomentPicker />
       <FilmStage />
       <RitualScroll />
       <section className="home-shop">
-        <div className="section-heading"><p className="section-kicker">THE FIRST FOUR · أول أربع قرمشات</p><h2>START WITH<br /><em>A COLOR.</em></h2><Link href="/shop">SHOP ALL 7 ↗</Link></div>
+        <div className="section-heading"><p className="section-kicker">THE FIRST FOUR · أول أربع قرمشات</p><h2>PICK ONE.<br /><em>PASS IT ON.</em></h2><Link href="/shop">SHOP ALL 7 ↗</Link></div>
         <div className="product-grid">{flavors.slice(0, 4).map((flavor) => <ProductCard flavor={flavor} key={flavor.id} />)}</div>
-        <div className="bundle-banner"><div><span>7 × 100G · SAVE SAR 3</span><h3>{starterBundle.ar}</h3><h2>{starterBundle.en}</h2><p>Every flavor. One giftable first crack. Built for the table, the road and the group chat.</p></div><div className="bundle-packs">{flavors.map((flavor, index) => <img key={flavor.id} src={flavor.image} alt="" style={{ "--i": index } as CSSProperties} />)}</div><button onClick={() => flavors.forEach((flavor) => add(flavor.id))}>ADD ALL SEVEN <b>{formatSar(starterBundle.priceSar)}</b></button></div>
+        <div className="bundle-banner"><div><span>7 × 100G · SAVE SAR 3</span><h3>{starterBundle.ar}</h3><h2>{starterBundle.en}</h2><p>All seven. Put them on the table and watch which color disappears first.</p></div><div className="bundle-packs">{flavors.map((flavor, index) => <img key={flavor.id} src={flavor.image} alt="" style={{ "--i": index } as CSSProperties} />)}</div><button data-cursor="ADD 7" onClick={() => addBundle(flavors.map((flavor) => flavor.id))}>ADD ALL SEVEN <b>{formatSar(starterBundle.priceSar)}</b></button></div>
       </section>
-      <section className="maker-section"><div className="maker-art"><span className="maker-brush">حُبّ</span><i className="maker-print" /></div><div><p className="section-kicker">MADE BY A HAND, NOT A TEMPLATE</p><h2>SAUDI CRAFT.<br /><em>DRAWN FOR NOW.</em></h2><p>The calligraphic gesture, thumbprint and re-cut Sadu rhythm carry human irregularity on purpose. Every flavor changes the energy. The family never loses its voice.</p><Link href="/story">READ THE DESIGN STORY ↗</Link></div></section>
+      <section className="maker-section"><div className="maker-art"><span className="maker-brush">حُبّ</span><i className="maker-print" /></div><div><p className="section-kicker">MADE BY A HAND, NOT A TEMPLATE</p><h2>SAUDI CRAFT.<br /><em>DRAWN FOR NOW.</em></h2><p>The brush, thumbprint and modern Sadu rhythm stay a little imperfect on purpose. Each color changes the mood. The family still feels like HUBB.</p><Link href="/story">READ THE DESIGN STORY ↗</Link></div></section>
       <section className="journal-preview"><div className="section-heading"><p className="section-kicker">THE CRACK JOURNAL · مجلة حُبّ</p><h2>KNOW YOUR<br /><em>SEED.</em></h2><Link href="/journal">READ ALL ↗</Link></div><div className="journal-grid">{journalPosts.map((post, index) => <Link href={`/journal/${post.slug}`} key={post.slug}><span>0{index + 1}</span><p>{post.eyebrow}</p><h3>{post.titleAr}</h3><h4>{post.title}</h4><small>{post.readingTime} · READ ↗</small></Link>)}</div></section>
-      <section className="final-crack"><img src="/products/classic.webp" alt="HUBB Classic" /><div><span>YOUR FIRST CRACK IS WAITING.</span><h2>اختر لونك.<br /><em>وافتح عالمك.</em></h2><Link href="/shop">SHOP THE SEVEN ↗</Link></div></section>
+      <section className="final-crack"><img src="/products/classic.webp" alt="HUBB Classic" /><div><span>ONE BAG IS ENOUGH TO START.</span><h2>اختر لونك.<br /><em>وخله يدور.</em></h2><Link href="/shop">PICK YOUR FIRST ↗</Link></div></section>
     </main>
   );
 }

@@ -2,6 +2,8 @@
 
 The website deliberately avoids synthetic people, places and “AI food photography.” Use real product, real hands and real Saudi settings. Approved packaging renders may bridge the pre-production phase.
 
+The live V4 site now includes an honest 15-second pack-study film made from the approved pouch images in wide WebM/MP4 and vertical MP4. It is finished web media, but it does not replace the real-hand macro shoot below.
+
 | Media key | Deliverable | Composition | Website use |
 |---|---|---|---|
 | `home.hero.[sku]` | 7 × 4:5 high-resolution stills | Pack upright, golden sandstone, raking warm light, visible matte/foil contrast | Hero and SKU selector |

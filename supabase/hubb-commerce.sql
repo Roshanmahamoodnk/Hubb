@@ -33,6 +33,7 @@ create table if not exists public.orders (
   status text not null default 'pending_payment' check (status in ('pending_payment','paid','packing','shipped','delivered','cancelled','refunded')),
   currency text not null default 'SAR' check (currency = 'SAR'),
   subtotal_sar numeric(10,2) not null default 0 check (subtotal_sar >= 0),
+  discount_sar numeric(10,2) not null default 0 check (discount_sar >= 0),
   shipping_sar numeric(10,2) not null default 0 check (shipping_sar >= 0),
   total_sar numeric(10,2) not null default 0 check (total_sar >= 0),
   shipping jsonb not null,
@@ -40,6 +41,8 @@ create table if not exists public.orders (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.orders add column if not exists discount_sar numeric(10,2) not null default 0 check (discount_sar >= 0);
 
 create table if not exists public.order_items (
   id bigint generated always as identity primary key,
@@ -57,6 +60,12 @@ alter table public.profiles enable row level security;
 alter table public.products enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
+
+revoke all on public.profiles, public.products, public.orders, public.order_items from anon, authenticated;
+grant select, update on public.profiles to authenticated;
+grant select on public.products to anon, authenticated;
+grant insert, update, delete on public.products to authenticated;
+grant select on public.orders, public.order_items to authenticated;
 
 create policy "profiles_select_own" on public.profiles for select to authenticated using ((select auth.uid()) = id);
 create policy "profiles_update_own" on public.profiles for update to authenticated using ((select auth.uid()) = id) with check ((select auth.uid()) = id);
@@ -97,6 +106,8 @@ declare
   product_record public.products%rowtype;
   requested_quantity integer;
   calculated_subtotal numeric(10,2) := 0;
+  full_set_quantity integer := 0;
+  calculated_discount numeric(10,2) := 0;
 begin
   if auth.uid() is null then raise exception 'Authentication required'; end if;
   if jsonb_typeof(cart_input) <> 'array' or jsonb_array_length(cart_input) = 0 then raise exception 'Cart is empty'; end if;
@@ -118,7 +129,24 @@ begin
     calculated_subtotal := calculated_subtotal + (product_record.price_sar * requested_quantity);
   end loop;
 
-  update public.orders set subtotal_sar = calculated_subtotal, total_sar = calculated_subtotal, updated_at = now() where id = new_order_id;
+  select min(flavor_quantity) into full_set_quantity
+  from (
+    select coalesce((
+      select (entry->>'quantity')::integer
+      from jsonb_array_elements(cart_input) entry
+      where entry->>'product_id' = required_flavor
+      limit 1
+    ), 0) as flavor_quantity
+    from unnest(array['classic','lemon-salt','hot-salt','spices','ghawa','matcha','americano']) required_flavor
+  ) complete_set;
+
+  calculated_discount := full_set_quantity * 3.00;
+  update public.orders
+  set subtotal_sar = calculated_subtotal,
+      discount_sar = calculated_discount,
+      total_sar = calculated_subtotal - calculated_discount,
+      updated_at = now()
+  where id = new_order_id;
   return new_order_id;
 end;
 $$;

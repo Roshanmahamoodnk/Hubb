@@ -1,6 +1,6 @@
 # HUBB حُبّ — Digital Launch Experience
 
-A bilingual, motion-led website prototype for HUBB, a seven-SKU Saudi sunflower-seed brand.
+A bilingual, motion-led commerce experience for HUBB, a seven-SKU Saudi sunflower-seed brand.
 
 ## Creative direction
 
@@ -25,22 +25,24 @@ Matcha uses naturally roasted golden kernels; green appears in the visual flavor
 ## Experience map
 
 1. Color-reactive hero and seven-flavor selector.
-2. Positioning manifesto: “Not just a seed. A Saudi snack signal.”
-3. Bilingual flavor stage with product, mood, and fast SKU rail.
-4. Animated crack/reveal/taste ritual.
-5. Saudi Neo-Craft story: calligraphy, Sadu rhythm, maker thumbprint.
-6. Full collectible SKU grid.
-7. Shareable “What’s your HUBB number?” ticket.
-8. Launch close and flavor CTA.
+2. Remembered Taste Lab result and four-moment ritual picker.
+3. Bilingual flavor stage with product, mood and fast SKU rail.
+4. Real 15-second seven-pack film with pause and chapter control.
+5. Animated crack/reveal/taste ritual.
+6. Saudi Neo-Craft story: calligraphy, Sadu rhythm and maker thumbprint.
+7. Full collectible SKU grid and uninterrupted add-to-bag feedback.
+8. Install-to-home-screen prompt, offline shell and app shortcuts.
 
 ## Interaction behavior
 
 - Hero cycles through flavors until the visitor selects one.
 - Product stage, interface accent, copy, and share card update together.
 - Pointer movement adds restrained product depth on desktop.
+- A semantic pointer halo labels View, Pick, Add, Play and Bag actions without hiding the native cursor.
 - Scroll reveals pace the narrative.
 - `prefers-reduced-motion` removes looping and transitional movement.
 - Arabic/English control changes the main narrative copy without hiding SKU names.
+- Add-to-bag keeps the customer on the page; the bag opens only when requested.
 
 ## Repository map
 
@@ -50,7 +52,10 @@ app/globals.css              Visual, responsive, and motion system
 app/layout.tsx               Metadata and document shell
 public/brand/                Approved logo lockup crop
 public/products/             Optimized 1024×1536 product WebP assets
+public/video/                Wide and vertical 15-second HUBB pack films
+public/icons/                PWA app icons
 docs/research-blueprint.md   Top-10 benchmark study, motion plan, image pipeline
+docs/HUBB_UX_MOTION_AUDIT.md V4 evidence, decisions and remaining QA
 ```
 
 ## Run locally

@@ -10,7 +10,7 @@ export function ProductCard({ flavor, priority = false }: { flavor: Flavor; prio
   const { add } = useCart();
   return (
     <motion.article className="product-card" style={{ "--flavor": flavor.color, "--flavor-pale": flavor.pale } as CSSProperties} whileHover={{ y: -8 }} transition={{ duration: 0.28 }}>
-      <Link className="product-card-image" href={`/flavors/${flavor.id}`}>
+      <Link className="product-card-image" data-cursor="VIEW" href={`/flavors/${flavor.id}`}>
         <span>{flavor.number}/07</span>
         <img src={flavor.image} alt={`HUBB ${flavor.en} sunflower seed pouch`} loading={priority ? "eager" : "lazy"} />
         <i>VIEW FLAVOR ↗</i>
@@ -19,7 +19,7 @@ export function ProductCard({ flavor, priority = false }: { flavor: Flavor; prio
         <div><h2>{flavor.ar}</h2><p>{flavor.en}</p></div>
         <div><b>{formatSar(flavor.priceSar)}</b><small>{flavor.weightGrams} G</small></div>
       </div>
-      <button className="add-button" onClick={() => add(flavor.id)}>ADD TO BAG <span>+</span></button>
+      <button className="add-button" data-cursor="ADD" onClick={() => add(flavor.id)}>ADD TO BAG <span>+</span></button>
     </motion.article>
   );
 }
