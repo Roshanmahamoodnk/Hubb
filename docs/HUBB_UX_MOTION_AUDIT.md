@@ -94,12 +94,18 @@ Avoid:
 
 | Asset | Use | Duration | Approx. size |
 |---|---|---:|---:|
-| `hubb-seven-worlds.webm` | Preferred website film | 15s | 2.2 MB |
-| `hubb-seven-worlds.mp4` | Website fallback | 15s | 4.3 MB |
-| `hubb-seven-worlds-vertical.mp4` | Reels/TikTok/Shorts draft | 15s | 5.1 MB |
-| `hubb-seven-worlds-poster.webp` | Reduced motion / loading | still | 0.22 MB |
+| `hubb-seven-worlds.webm` | Preferred website film | 15s | under 5 MB |
+| `hubb-seven-worlds.mp4` | Website fallback | 15s | under 5 MB |
+| `hubb-seven-worlds-cinema.*` | Films page wide cut | 15s | cinematic 1080p |
+| `hubb-seven-worlds-vertical.mp4` | Reels/TikTok/Shorts draft | 15s | 9:16 |
+| `hubb-seven-worlds-mobile.mp4` | Mobile hero/film | 15s | 9:16 |
+| `hubb-crack-study.mp4` | Macro shell/kernel study | ~8s | wide |
+| `loops/[sku].mp4` | Six-second flavor world | 6s | 960×540 |
+| `controls/hubb-seven-worlds-edge.mp4` | Cosmos Transfer edge map | 15s | Sobel |
 
-The current film is an honest pack study made from approved product imagery. It does not pretend to show customers, a factory or a Saudi location. The real production phase should replace or extend it with macro seed cracking, real hands, real match-night/majlis use and recorded crack sound. Matcha kernels must remain naturally roasted, never green-coated.
+The current film is an honest pack study: approved pouches composited onto cinematic flavor worlds, then Ken-Burned and optionally transferred through NVIDIA Cosmos 3. It does not pretend to show customers, a factory or a Saudi location. The real production phase should replace or extend it with macro seed cracking shot on real hands, real match-night/majlis use and recorded crack sound. Matcha kernels must remain naturally roasted, never green-coated.
+
+Rebuild locally with `npm run film:build`. GPU video-to-video is documented in [cosmos/hubb/README.md](../cosmos/hubb/README.md).
 
 ## V6 conversion pass
 
@@ -113,7 +119,7 @@ Release checks: 12 rendered-route and source-invariant tests pass, the bounded V
 
 ## Remaining production priorities
 
-1. Shoot one 15-second macro ritual film and seven 6-second SKU loops.
+1. Grade the cinematic pack films through NVIDIA Cosmos 3 Transfer on a GPU host, then shoot one real-hand 15-second macro ritual film.
 2. Photograph the back of every final pack after nutrition/legal approval.
 3. Connect verified price, inventory, delivery and payment data before accepting money.
 4. Connect production Supabase Auth/Orders/Storage only after project credentials and RLS review.

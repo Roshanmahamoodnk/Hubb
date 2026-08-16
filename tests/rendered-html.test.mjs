@@ -85,6 +85,21 @@ test("renders the real seven-pack film and short human launch copy", async () =>
   assert.ok(mp4.size > 500_000 && mp4.size < 5_000_000);
 });
 
+test("ships cinematic SKU loops and a macro crack study", async () => {
+  const response = await render("/films");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /hubb-crack-study\.mp4/);
+  assert.match(html, /loops\/classic\.mp4/);
+  assert.match(html, /SIX SECONDS/);
+  const crack = await stat(new URL("../public/video/hubb-crack-study.mp4", import.meta.url));
+  assert.ok(crack.size > 200_000);
+  for (const id of ["classic", "lemon-salt", "hot-salt", "spices", "ghawa", "matcha", "americano"]) {
+    const loop = await stat(new URL(`../public/video/loops/${id}.mp4`, import.meta.url));
+    assert.ok(loop.size > 80_000, id);
+  }
+});
+
 test("keeps the first viewport free of external font and eager-film blockers", async () => {
   const response = await render("/");
   const html = await response.text();

@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import { useCart } from "@/components/cart-provider";
 import { SensoryBars } from "@/components/product-card";
 import { flavors, formatSar, type Flavor } from "@/lib/catalog";
+import { flavorLoopPoster, flavorLoopSrc } from "@/lib/films";
 import { getSupabaseBrowserClient } from "@/lib/supabase";
 import { rememberFlavor, useSavedFlavorId } from "@/lib/taste-memory";
 
@@ -28,6 +29,16 @@ export function FlavorExperience({ flavor }: { flavor: Flavor }) {
         <div className="flavor-title"><span>{flavor.number} / 07 · {flavor.sku}</span><h1>{flavor.ar}</h1><h2>{flavor.en}</h2><blockquote>{flavor.moodEn}</blockquote><p lang="ar">{flavor.moodAr}</p></div>
         <motion.div className="flavor-pack" initial={{ y: 60, rotate: -6, opacity: 0 }} animate={{ y: 0, rotate: 0, opacity: 1 }} transition={{ duration: .75, ease: [0.16, 1, .3, 1] }}><i /><img src={flavor.image} alt={`HUBB ${flavor.en} pack`} /></motion.div>
         <div className="flavor-buy"><span>{flavor.weightGrams}G · IN-SHELL SUNFLOWER SEEDS</span><p>{flavor.noteEn}</p><div><button data-cursor="ADD" onClick={() => add(flavor.id)}>ADD TO BAG <b>{formatSar(flavor.priceSar)}</b></button><button className={`save-taste ${saved ? "is-saved" : ""}`} aria-pressed={saved} onClick={toggleSaved}>{saved ? "SAVED AS MY FLAVOR ✓" : "SAVE AS MY FLAVOR ♡"}</button><small>VAT included · delivery calculated later</small></div></div>
+      </section>
+      <section className="flavor-world-film">
+        <video controls muted loop playsInline preload="none" poster={flavorLoopPoster(flavor.id)}>
+          <source src={flavorLoopSrc(flavor.id)} type="video/mp4" />
+        </video>
+        <div>
+          <p>SIX-SECOND WORLD · عالم النكهة</p>
+          <h2>THE BAG,<br />IN ITS <em>LIGHT.</em></h2>
+          <p>A cinematic pack study for {flavor.en}. The pouch is the approved artwork. The world around it is built to feel tactile and roasted, not like a slideshow.</p>
+        </div>
       </section>
       <section className="flavor-sense"><div><p>SENSORY SIGNAL · بصمة النكهة</p><h2>TASTE IT<br />BEFORE THE<br /><em>FIRST CRACK.</em></h2></div><SensoryBars flavor={flavor} /><aside><span>BUILT FOR</span><h3>{flavor.ritual}</h3><p>{flavor.tags.join(" · ")}</p></aside></section>
       <section className="ingredient-world"><div className="ingredient-art"><span className="kernel k1" /><span className="kernel k2" /><span className="shell s1" /><span className="shell s2" /><i /></div><div><p>THE PAYOFF · المكافأة</p><h2>THE COLOR IS THE SIGNAL.<br /><em>THE ROAST IS REAL.</em></h2><p>The flavor world may be vivid, but the centre stays a naturally roasted sunflower kernel. Matcha included—green belongs in the artwork, never as an artificial-looking kernel coat.</p></div></section>

@@ -27,7 +27,7 @@ Matcha uses naturally roasted golden kernels; green appears in the visual flavor
 1. Color-reactive hero and seven-flavor selector.
 2. Remembered Taste Lab result and four-moment ritual picker.
 3. Bilingual flavor stage with product, mood and fast SKU rail.
-4. Real 15-second seven-pack film with pause and chapter control.
+4. Real 15-second seven-pack film with pause and chapter control, plus six-second flavor loops.
 5. Animated crack/reveal/taste ritual.
 6. Saudi Neo-Craft story: calligraphy, Sadu rhythm and maker thumbprint.
 7. Full collectible SKU grid and uninterrupted add-to-bag feedback.
@@ -52,7 +52,10 @@ app/globals.css              Visual, responsive, and motion system
 app/layout.tsx               Metadata and document shell
 public/brand/                Approved logo lockup crop
 public/products/             Optimized 1024×1536 product WebP assets
-public/video/                Wide and vertical 15-second HUBB pack films
+public/video/                Wide, vertical and macro HUBB pack films
+public/video/loops/          Six-second cinematic world per SKU
+cosmos/hubb/                 NVIDIA Cosmos 3 video-to-video specs
+scripts/assets/plates/       Photoreal flavor-world plates for the film builder
 public/icons/                PWA app icons
 docs/research-blueprint.md   Top-10 benchmark study, motion plan, image pipeline
 docs/HUBB_UX_MOTION_AUDIT.md V4 evidence, decisions and remaining QA
@@ -81,7 +84,11 @@ npm ci
 npm run build:render
 ```
 
-Use `out` as the Render publish directory. No server, database, or paid instance is required for the current launch experience.
+```bash
+npm run film:build
+```
+
+Requires `ffmpeg`. On a GPU host with NVIDIA Cosmos 3 serving at `COSMOS_API_URL`, the same command video-to-video transfers the pack films for a more physically realistic grade. See [cosmos/hubb/README.md](cosmos/hubb/README.md).
 
 ## Production handoff checklist
 
