@@ -50,8 +50,8 @@ function CinemaSources() {
   return (
     <>
       <source src="/video/hubb-seven-worlds-mobile.mp4" type="video/mp4" media="(max-width: 720px)" />
-      <source src="/video/hubb-seven-worlds-cinema.webm" type="video/webm" media="(min-width: 721px)" />
-      <source src="/video/hubb-seven-worlds-cinema.mp4" type="video/mp4" />
+      <source src="/video/hubb-seven-worlds.webm" type="video/webm" />
+      <source src="/video/hubb-seven-worlds.mp4" type="video/mp4" />
     </>
   );
 }
@@ -129,7 +129,7 @@ function Hero({ language }: { language: Language }) {
           muted
           loop
           playsInline
-          preload={saveData ? "none" : "metadata"}
+          preload="none"
           poster={isMobile ? "/video/hubb-seven-worlds-mobile-poster.webp" : "/video/hubb-seven-worlds-poster.webp"}
           tabIndex={-1}
           onPlay={() => setPlaying(true)}

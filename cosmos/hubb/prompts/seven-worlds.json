@@ -1,0 +1,71 @@
+{
+  "subjects": [
+    {
+      "description": "An approved HUBB matte-black sunflower-seed pouch standing upright as the hero product, with visible Arabic calligraphy, gold HUBB mark, flavor brushstroke and collectible 01/07 numbering.",
+      "appearance_details": "Soft-black pack with tactile foil and matte contrast, flavor color entering only through the painted brushstroke, naturally roasted striped sunflower seeds printed on the lower panel, golden kernel in the cracked seed.",
+      "relationship": "The pouch is grounded on warm sandstone among real roasted seeds, salt and flavor ingredients.",
+      "location": "Center-right of a 16:9 cinematic frame",
+      "relative_size": "Large within frame, readable at thumbnail size",
+      "orientation": "Upright, slight three-quarter turn toward camera-left light",
+      "pose": "",
+      "action": "Holds still while the camera makes a slow tactile push-in",
+      "state_changes": "Light rakes across foil and matte panels; flavor worlds change by chapter",
+      "clothing": "",
+      "expression": "",
+      "gender": "",
+      "age": "",
+      "skin_tone_and_texture": "",
+      "facial_features": "",
+      "number_of_subjects": 1,
+      "number_of_arms": 0,
+      "number_of_legs": 0
+    }
+  ],
+  "background_setting": "Warm AlUla-inspired sandstone and soft-black studio surfaces. Naturally roasted sunflower seeds, split shells and golden kernels occupy the foreground. No people, no hands, no factory, no generic desert luxury set.",
+  "lighting": {
+    "conditions": "Golden-hour raking light with controlled studio fill",
+    "direction": "Camera-left key, soft bounce from sandstone",
+    "shadows": "Long tactile contact shadows under the pouch",
+    "illumination_effect": "Premium commercial food lighting that keeps pack typography readable"
+  },
+  "aesthetics": {
+    "composition": "Product-led cinematic framing with ingredient world in the lower third",
+    "color_scheme": "Soft black, bone, gold, and one live flavor accent at a time",
+    "mood_atmosphere": "Tactile, Saudi, collectible, snack-forward",
+    "patterns": "Subtle modern Najdi Sadu rhythm in light and shadow only"
+  },
+  "cinematography": {
+    "camera_motion": "Slow push-in with micro parallax, 24fps",
+    "framing": "Wide cinematic 16:9",
+    "camera_angle": "Slightly below eye-level, 85mm product stance",
+    "depth_of_field": "Shallow, pack sharp, ingredients softly tactile",
+    "focus": "Pack brand mark and flavor brushstroke",
+    "lens_focal_length": "85mm equivalent"
+  },
+  "style_medium": "Live-action commercial product cinematography",
+  "artistic_style": "Photoreal, physically accurate materials",
+  "context": "HUBB seven-flavor pack study for the website film stage",
+  "actions": [
+    {
+      "time": "0:00-0:15",
+      "description": "Seven chapters, one SKU each: Classic, Lemon Salt, Hot & Salt, Spices, Ghawa, Matcha, Americano. Camera eases in. Matcha kernels remain naturally roasted gold."
+    }
+  ],
+  "text_and_signage_elements": [],
+  "segments": [
+    {
+      "segment_index": 0,
+      "time_range": "0:00-0:15",
+      "description": "Continuous seven-world pack study with physically accurate lighting and materials.",
+      "key_changes": "Flavor color and ingredient world change every chapter",
+      "camera": "Slow push-in, no whip pans"
+    }
+  ],
+  "transitions": [],
+  "temporal_caption": "A 15-second cinematic pack study of seven HUBB sunflower-seed pouches, each standing in its own ingredient world under golden Saudi light, ending on Americano.",
+  "audio_description": "",
+  "resolution": { "W": 1280, "H": 720 },
+  "aspect_ratio": "16,9",
+  "duration": "15s",
+  "fps": 24
+}
