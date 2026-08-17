@@ -1,15 +1,14 @@
-const CACHE = "hubb-shell-v8";
+const CACHE = "hubb-shell-v6";
 const NAVIGATION_TIMEOUT_MS = 4000;
 const SHELL = [
   "/",
   "/shop",
-  "/how-it-works",
   "/taste-lab",
   "/manifest.webmanifest",
   "/favicon.svg",
   "/icons/hubb-192.png",
   "/brand/hubb-logo.webp",
-  "/products/umami-salt.svg",
+  "/products/classic.webp",
 ];
 
 self.addEventListener("install", (event) => {

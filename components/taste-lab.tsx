@@ -1,120 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCart } from "@/components/cart-provider";
-import { PackPlate } from "@/components/pack-plate";
-import { flavorById, flavors, formatSar, type Flavor } from "@/lib/catalog";
+import { flavors, formatSar } from "@/lib/catalog";
 import { rememberFlavor } from "@/lib/taste-memory";
-import { useLanguage } from "@/lib/language";
 
-const bracket: Array<[string, string]> = [
-  ["umami-salt", "spice-mix"],
-  ["umami-garlic", "umami-capsicum"],
-  ["vanilla-caramel", "coffee-cocoa"],
+const questions = [
+  { en: "Choose the energy.", ar: "اختر الطاقة.", options: [{ label: "CLEAN & EASY", scores: [0, 0, 0, 0, 0, 0, 0] }, { label: "BRIGHT & LOUD", scores: [1, 4, 2, 1, 0, 2, 0] }, { label: "DARK & FOCUSED", scores: [1, 0, 0, 1, 3, 1, 4] }] },
+  { en: "Where are you cracking?", ar: "أين ستكون القرمشة؟", options: [{ label: "MATCH NIGHT", scores: [4, 2, 4, 2, 0, 0, 1] }, { label: "MAJLIS", scores: [2, 1, 1, 4, 4, 0, 1] }, { label: "CAFE / STUDY", scores: [1, 1, 0, 1, 2, 4, 4] }] },
+  { en: "How much heat?", ar: "كم مستوى الحرارة؟", options: [{ label: "ZERO", scores: [2, 2, 0, 1, 2, 3, 3] }, { label: "A WARM HUM", scores: [1, 1, 2, 4, 1, 1, 1] }, { label: "MAKE IT HIT", scores: [0, 0, 5, 2, 0, 0, 0] }] },
+  { en: "Pick a finish.", ar: "اختر النهاية.", options: [{ label: "SALTY", scores: [4, 4, 3, 2, 0, 1, 0] }, { label: "AROMATIC", scores: [1, 2, 1, 4, 5, 4, 3] }, { label: "ROASTED", scores: [4, 1, 2, 3, 5, 2, 5] }] },
 ];
 
 export function TasteLab() {
-  const { add } = useCart();
-  const { t, language } = useLanguage();
   const [step, setStep] = useState(0);
-  const [winners, setWinners] = useState<string[]>([]);
-  const [finalist, setFinalist] = useState<string | null>(null);
-  const pair = bracket[step];
-  const left = pair ? flavorById(pair[0]) : null;
-  const right = pair ? flavorById(pair[1]) : null;
-  const finalists = useMemo(() => winners.map((id) => flavorById(id)).filter((item): item is Flavor => Boolean(item)), [winners]);
-  const champion = finalist ? flavorById(finalist) ?? flavors[0] : flavors[0];
-
-  const pickMatch = (id: string) => {
-    const next = [...winners, id];
-    setWinners(next);
-    setStep((value) => value + 1);
-  };
-
-  const pickChampion = (id: string) => {
-    setFinalist(id);
-    rememberFlavor(id);
-  };
-
-  const reset = () => {
-    setStep(0);
-    setWinners([]);
-    setFinalist(null);
-  };
-
+  const [scores, setScores] = useState<number[]>(Array(7).fill(0));
+  const { add } = useCart();
+  const resultIndex = useMemo(() => scores.indexOf(Math.max(...scores)), [scores]);
+  const result = flavors[resultIndex < 0 ? 0 : resultIndex];
+  useEffect(() => {
+    if (step >= questions.length) rememberFlavor(result.id);
+  }, [result.id, step]);
+  const answer = (next: number[]) => { setScores((current) => current.map((value, index) => value + next[index])); setStep((value) => value + 1); };
+  const reset = () => { setStep(0); setScores(Array(7).fill(0)); };
   return (
-    <main className="page-main taste-lab-page taste-drop" style={{ "--result": champion.color } as CSSProperties}>
-      <div className="lab-intro">
-        <span>{t("دروب المختبر / WORLD CRACK", "TASTE LAB / WORLD CRACK")}</span>
-        <h1>{t("طقّ.", "CRACK.")}<br /><em>{t("ذُق. قرّر.", "TASTE. DECIDE.")}</em></h1>
-        <p>{t("ثلاث مواجهات. بطل واحد. حُبّ تتذكر النتيجة على جهازك.", "Three matchups. One champion. HUBB remembers the result on this device.")}</p>
-      </div>
-      <div className="lab-machine drop-machine">
-        <div className="lab-progress">
-          {[0, 1, 2, 3].map((index) => <i key={index} className={index < step || (index === 3 && finalist) ? "is-done" : index === step ? "is-active" : ""} />)}
-        </div>
+    <main className="page-main taste-lab-page" style={{ "--result": result.color } as CSSProperties}>
+      <div className="lab-intro"><span>TASTE LAB / مختبر النكهة</span><h1>FOUR TAPS.<br /><em>ONE BAG.</em></h1><p>Tell us the heat, the mood and where you’re going. We’ll pick tonight’s crack.</p></div>
+      <div className="lab-machine">
+        <div className="lab-progress">{questions.map((_, index) => <i key={index} className={index < step ? "is-done" : index === step ? "is-active" : ""} />)}</div>
         <AnimatePresence mode="wait">
-          {step < bracket.length && left && right ? (
-            <motion.section className="drop-match" key={pair.join("-")} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -18 }}>
-              <span>{t(`مواجهة 0${step + 1} / 03`, `MATCH 0${step + 1} / 03`)}</span>
-              <h2>{t("مين يفوز الليلة؟", "Who wins tonight?")}</h2>
-              <div className="drop-pair">
-                <MatchCard flavor={left} language={language} onPick={() => pickMatch(left.id)} pickLabel={t("هذه", "THIS ONE")} />
-                <b>{t("ضد", "VS")}</b>
-                <MatchCard flavor={right} language={language} onPick={() => pickMatch(right.id)} pickLabel={t("هذه", "THIS ONE")} />
-              </div>
-            </motion.section>
-          ) : !finalist ? (
-            <motion.section className="drop-match" key="final" initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
-              <span>{t("النهائي", "THE FINAL")}</span>
-              <h2>{t("توج بطل اللب.", "Crown the kernel.")}</h2>
-              <div className="drop-final">
-                {finalists.map((flavor) => (
-                  <button key={flavor.id} type="button" className="drop-finalist" style={{ "--flavor": flavor.color } as CSSProperties} onClick={() => pickChampion(flavor.id)}>
-                    <PackPlate flavor={flavor} size="sm" />
-                    <b lang="ar">{flavor.ar}</b>
-                    <small>{flavor.en}</small>
-                  </button>
-                ))}
-              </div>
-            </motion.section>
-          ) : (
-            <motion.section className="lab-result drop-result" key="result" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}>
-              <div>
-                <span>{t("بطل الليلة", "TONIGHT’S CHAMPION")}</span>
-                <h2>{champion.ar}</h2>
-                <h3>{champion.en}</h3>
-                <p>{language === "ar" ? champion.lineAr : champion.lineEn}</p>
-                <div>
-                  <button data-cursor="ADD" onClick={() => add(champion.id)}>{t("أضف للحقيبة", "ADD TO BAG")} <b>{formatSar(champion.priceSar)}</b></button>
-                  <Link href={`/flavors/${champion.id}`}>{t("شاهد النكهة ↗", "SEE THE FLAVOR ↗")}</Link>
-                </div>
-                <button className="lab-reset" onClick={reset}>{t("أعد الدروب ↻", "RUN THE DROP AGAIN ↻")}</button>
-              </div>
-              <img src={champion.image} alt={`Your flavor is ${champion.en}`} />
-            </motion.section>
-          )}
+          {step < questions.length ? <motion.section key={step} initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
+            <span>0{step + 1} / 04</span><h2 lang="ar">{questions[step].ar}</h2><h3>{questions[step].en}</h3><div>{questions[step].options.map((option, index) => <button onClick={() => answer(option.scores)} key={option.label}><i>0{index + 1}</i><b>{option.label}</b><span>↗</span></button>)}</div>
+          </motion.section> : <motion.section className="lab-result" key="result" initial={{ opacity: 0, scale: .92 }} animate={{ opacity: 1, scale: 1 }}>
+            <div><span>TONIGHT’S BAG</span><h2>{result.ar}</h2><h3>{result.en}</h3><p>{result.noteEn}</p><div><button data-cursor="ADD" onClick={() => add(result.id)}>ADD TO BAG <b>{formatSar(result.priceSar)}</b></button><Link href={`/flavors/${result.id}`}>SEE THE FLAVOR ↗</Link></div><button className="lab-reset" onClick={reset}>TRY AGAIN ↻</button></div><img src={result.image} alt={`Your flavor is ${result.en}`} />
+          </motion.section>}
         </AnimatePresence>
       </div>
     </main>
-  );
-}
-
-function MatchCard({ flavor, language, onPick, pickLabel }: { flavor: Flavor; language: "ar" | "en"; onPick: () => void; pickLabel: string }) {
-  return (
-    <article className="drop-card" style={{ "--flavor": flavor.color } as CSSProperties}>
-      {flavor.loopSrc ? (
-        <video muted loop playsInline autoPlay preload="metadata" poster={flavor.loopPoster} aria-hidden="true">
-          <source src={flavor.loopSrc} type="video/mp4" />
-        </video>
-      ) : null}
-      <PackPlate flavor={flavor} />
-      <h3 lang="ar">{flavor.ar}</h3>
-      <h4>{flavor.en}</h4>
-      <p>{language === "ar" ? flavor.lineAr : flavor.lineEn}</p>
-      <button type="button" data-cursor="PICK" onClick={onPick}>{pickLabel} ↗</button>
-    </article>
   );
 }

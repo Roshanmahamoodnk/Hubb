@@ -147,10 +147,10 @@ begin
       where entry->>'product_id' = required_flavor
       limit 1
     ), 0) as flavor_quantity
-    from unnest(array['umami-salt','umami-garlic','umami-capsicum','spice-mix','vanilla-caramel','coffee-cocoa']) required_flavor
+    from unnest(array['classic','lemon-salt','hot-salt','spices','ghawa','matcha','americano']) required_flavor
   ) complete_set;
 
-  calculated_discount := full_set_quantity * 20.40;
+  calculated_discount := full_set_quantity * 3.00;
   update public.orders
   set subtotal_sar = calculated_subtotal,
       discount_sar = calculated_discount,
@@ -165,13 +165,13 @@ revoke all on function public.create_order(jsonb, jsonb) from public, anon;
 grant execute on function public.create_order(jsonb, jsonb) to authenticated;
 
 insert into public.products (id, sku, name_en, name_ar, price_sar, image_url, inventory, sort_order) values
-  ('umami-salt','HUBB-USA-230-EC','Umami salt','ملح أومامي',26.90,'/products/umami-salt.svg',500,1),
-  ('umami-garlic','HUBB-GAR-230-EC','Umami garlic','ثوم أومامي',26.90,'/products/umami-garlic.svg',500,2),
-  ('umami-capsicum','HUBB-CAP-230-EC','Umami capsicum','فلفل أومامي',27.90,'/products/umami-capsicum.svg',500,3),
-  ('spice-mix','HUBB-BHR-230-EC','Spice mix','بهار',27.90,'/products/spice-mix.svg',500,4),
-  ('vanilla-caramel','HUBB-VCC-230-EC','Vanilla caramel chocolate','فانيليا كراميل شوكو',29.90,'/products/vanilla-caramel.svg',500,5),
-  ('coffee-cocoa','HUBB-CCK-230-EC','Coffee cocoa','قهوة كاكاو',29.90,'/products/coffee-cocoa.svg',500,6),
-  ('lemon-salt','HUBB-LMS-230-EC','Lemon salt','ليمون وملح',26.90,'/products/lemon-salt.svg',500,7)
+  ('classic','HUBB-CLS-100','Classic','كلاسيك',5,'/products/classic.webp',500,1),
+  ('lemon-salt','HUBB-LMS-100','Lemon Salt','ليمون وملح',5,'/products/lemon-salt.webp',500,2),
+  ('hot-salt','HUBB-HOT-100','Hot & Salt','حار وملح',5,'/products/hot-salt.webp',500,3),
+  ('spices','HUBB-SPC-100','Spices','بهارات',5,'/products/spices.webp',500,4),
+  ('ghawa','HUBB-GHW-100','Ghawa','قهوة عربية',5,'/products/ghawa.webp',500,5),
+  ('matcha','HUBB-MTC-100','Matcha','ماتشا',5,'/products/matcha.webp',500,6),
+  ('americano','HUBB-AMR-100','Americano','أمريكانو',5,'/products/americano.webp',500,7)
 on conflict (id) do update set sku = excluded.sku, name_en = excluded.name_en, name_ar = excluded.name_ar, sort_order = excluded.sort_order;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)

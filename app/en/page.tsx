@@ -3,7 +3,7 @@ import { HomeExperience } from "@/components/home-experience";
 
 export const metadata: Metadata = {
   title: "Saudi sunflower seeds, reimagined",
-  description: "The perfect crack — every time. Vacuum-infused HUBB sunflower seeds, packed in Riyadh.",
+  description: "Explore all seven HUBB sunflower-seed flavors through taste, ritual and modern Saudi design.",
   alternates: { canonical: "/en", languages: { "ar-SA": "/", "en-SA": "/en" } },
 };
 

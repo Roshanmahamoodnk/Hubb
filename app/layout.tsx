@@ -3,27 +3,26 @@ import "./globals.css";
 import "./policies.css";
 import { CartProvider } from "@/components/cart-provider";
 import { SiteShell } from "@/components/site-shell";
-import { LanguageProvider } from "@/lib/language";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://hubb-seeds.onrender.com"),
   title: {
-    default: "HUBB حُبّ — الطعم في اللب",
+    default: "HUBB حُبّ — النكهة في اللُّب",
     template: "%s · HUBB حُبّ",
   },
-  description: "The perfect crack — every time. Vacuum-infused Saudi sunflower seeds, packed in Riyadh. الطعم في اللب.",
+  description: "Seven bold sunflower-seed flavors, reimagined through a modern Saudi visual voice. سبع نكهات، قرمشة واحدة.",
   keywords: ["sunflower seeds Saudi Arabia", "حب دوار الشمس", "Saudi snacks", "HUBB seeds", "بذور دوار الشمس"],
   alternates: { canonical: "/", languages: { "ar-SA": "/", "en-SA": "/en" } },
   openGraph: {
-    title: "HUBB حُبّ — The taste is in the kernel",
-    description: "The perfect crack — every time. Vacuum kernel infusion. Packed in Riyadh.",
+    title: "HUBB حُبّ — Flavor in the Kernel",
+    description: "Seven flavors. One unmistakably Saudi crack.",
     url: "/",
     siteName: "HUBB حُبّ",
     locale: "ar_SA",
     type: "website",
-    images: [{ url: "/products/umami-salt.svg", width: 1200, height: 1500, alt: "HUBB Umami salt sunflower seeds" }],
+    images: [{ url: "/products/classic.webp", width: 1200, height: 1500, alt: "HUBB Classic sunflower seeds" }],
   },
-  twitter: { card: "summary_large_image", title: "HUBB حُبّ", description: "The taste is in the kernel.", images: ["/products/umami-salt.svg"] },
+  twitter: { card: "summary_large_image", title: "HUBB حُبّ", description: "Flavor in the kernel.", images: ["/products/classic.webp"] },
   other: {
     "codex-preview": "development",
     "theme-color": "#0e0c09",
@@ -57,7 +56,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preload" href="/fonts/noto-kufi-arabic.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
       </head>
       <body>
-        <CartProvider><LanguageProvider><SiteShell>{children}</SiteShell></LanguageProvider></CartProvider>
+        <CartProvider><SiteShell>{children}</SiteShell></CartProvider>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organization) }} />
       </body>
     </html>
