@@ -13,7 +13,7 @@ export function ProductCard({ flavor, priority = false }: { flavor: Flavor; prio
       <Link className="product-card-image" data-cursor="VIEW" href={`/flavors/${flavor.id}`}>
         <span>{flavor.number}/07</span>
         <img src={flavor.image} alt={`HUBB ${flavor.en} sunflower seed pouch`} loading={priority ? "eager" : "lazy"} />
-        <i>VIEW FLAVOR ↗</i>
+        <i>{flavor.channels.includes("retail") ? "E-COM + RETAIL ↗" : flavor.channels.includes("cafe") ? "E-COM + CAFÉ ↗" : "E-COM ↗"}</i>
       </Link>
       <div className="product-card-copy">
         <div><h2>{flavor.ar}</h2><p>{flavor.en}</p></div>

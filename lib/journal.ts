@@ -32,7 +32,7 @@ export const journalPosts: JournalPost[] = [
       {
         heading: "03 — Reveal",
         headingAr: "٣ — استخرج اللُّب",
-        body: "Separate the shell, take the kernel, then repeat. The tiny rhythm is why in-shell seeds belong to matches, drives and long conversations.",
+        body: "Separate the shell, take the kernel, then repeat. If you wipe the husk, the kernel should still taste the flavor — that is the HUBB proof.",
       },
     ],
   },
@@ -56,9 +56,9 @@ export const journalPosts: JournalPost[] = [
         body: "Too little heat leaves the eating experience flat. Too much can make both shell and kernel brittle. Commercial specifications must therefore be validated with real pilot trials.",
       },
       {
-        heading: "Flavor belongs with the kernel experience",
-        headingAr: "النكهة تكمل تجربة اللُّب",
-        body: "HUBB is designed around the payoff after the crack: aroma on opening, seasoning during the ritual and a roasted kernel at the centre.",
+        heading: "Flavor belongs in the kernel",
+        headingAr: "النكهة في اللب",
+        body: "HUBB uses two layers: vacuum liquor through the husk into the kernel, then a 72–100 mesh outer dust. Wipe the shell. The kernel still tastes umami, kabsa or coffee.",
       },
     ],
   },
@@ -79,12 +79,38 @@ export const journalPosts: JournalPost[] = [
       {
         heading: "Seven colors, one table",
         headingAr: "سبعة ألوان على طاولة واحدة",
-        body: "HUBB gives every flavor a sharp visual signal while the Saudi calligraphy, black base and modern Sadu rhythm keep the family unmistakably connected.",
+        body: "HUBB gives every flavor a sharp visual signal. Retail keeps umami salt, garlic and bahar. Chocolate and coffee stay on e-com so brown hands stay off the majlis.",
       },
       {
         heading: "Choose the first two",
         headingAr: "ابدأ باثنين",
-        body: "For a shared match table, start with one bright flavor such as Lemon Salt and one deeper profile such as Spices or Americano. The contrast makes choosing part of the fun.",
+        body: "For a shared match table, start with Umami salt and Spice mix (bahar). Lemon salt is the citrus collectible. Vanilla caramel stays an e-com drop.",
+      },
+    ],
+  },
+  {
+    slug: "vacuum-kernel-infusion",
+    eyebrow: "PROCESS · العملية",
+    title: "Why 0.05 MPa is the number to remember",
+    titleAr: "ليش 0.05 ميجا باسكال هو الرقم",
+    excerpt: "Vacuum pulls flavor through the husk. Dust is only the Snap moment. The taste is in the kernel.",
+    readingTime: "4 MIN",
+    published: "2026-08-17",
+    sections: [
+      {
+        heading: "Layer 1 — Kernel infusion",
+        headingAr: "الطبقة ١ — نقع اللب",
+        body: "At about 0.05 MPa, a 60–70°C liquor of water-soluble oleoresins or yeast extract is pulled through the husk into the kernel. Proof is simple: wipe the shell. The kernel still tastes umami, kabsa, garlic, coffee.",
+      },
+      {
+        heading: "Layer 2 — Outer dust",
+        headingAr: "الطبقة ٢ — غبار القشرة",
+        body: "A vacuum tumble lays 72–100 mesh salt and flavor dust on the husk. Hands smell it. Cameras love it. If the dust wipes off, layer 1 is already done.",
+      },
+      {
+        heading: "Lock — Roast and nitrogen",
+        headingAr: "القفل — تحميص ونيتروجين",
+        body: "Roast to 1.5–2.0% moisture, water activity at or below 0.40, then an N2 pillow. Packed in Riyadh. Halal. The mill is Rozana. The mark on the bag is HUBB.",
       },
     ],
   },

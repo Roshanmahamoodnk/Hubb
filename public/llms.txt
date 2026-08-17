@@ -1,32 +1,37 @@
 # HUBB حُبّ
 
-> HUBB is a modern Saudi in-shell sunflower-seed brand built around seven flavor worlds and the ritual of the clean crack.
+> HUBB is a Riyadh-packed in-shell sunflower-seed brand. Vacuum kernel infusion (~0.05 MPa) plus outer dust. The taste is in the kernel. الطعم في اللب.
 
-Canonical site: https://hubb-seeds.r0shan911.chatgpt.site/
+Canonical site: https://hubb-seeds.onrender.com
 Primary language: Arabic (Saudi Arabia)
 Secondary language: English (Saudi Arabia)
+Mill: Rozana, Riyadh. Public snack brand: HUBB / حُبّ.
 
 ## Core pages
 - Home: /
 - English home: /en
-- Shop all seven flavors: /shop
-- Interactive Taste Lab: /taste-lab
-- Brand and design story: /story
+- Shop: /shop
+- How it works / كيف تطقّها: /how-it-works
+- Taste Lab drop: /taste-lab
+- Brand story: /story
 - Saudi sunflower-seed guide: /saudi-sunflower-seeds
 - Editorial journal: /journal
+- Films: /films
 
 ## Product pages
-- Classic / كلاسيك: /flavors/classic — cobalt-blue signal, naturally roasted and salted
-- Lemon Salt / ليمون وملح: /flavors/lemon-salt
-- Hot & Salt / حار وملح: /flavors/hot-salt
-- Spices / بهارات: /flavors/spices
-- Ghawa / قهوة عربية: /flavors/ghawa
-- Matcha / ماتشا: /flavors/matcha — green artwork; kernel remains naturally roasted, not green-coated
-- Americano / أمريكانو: /flavors/americano
+- Umami salt / ملح أومامي: /flavors/umami-salt — original, yeast extract in the kernel
+- Umami garlic / ثوم أومامي: /flavors/umami-garlic
+- Umami capsicum / فلفل أومامي: /flavors/umami-capsicum — e-com
+- Spice mix / بهار: /flavors/spice-mix — kabsa kernel + outer dust
+- Vanilla caramel chocolate / فانيليا كراميل شوكو: /flavors/vanilla-caramel — e-com only
+- Coffee cocoa / قهوة كاكاو: /flavors/coffee-cocoa — e-com + café
+- Lemon salt / ليمون وملح: /flavors/lemon-salt — citrus collectible
 
 ## Accurate brand facts
-- Consumer line: “النكهة في اللُّب / Flavor in the kernel.”
-- HUBB uses an Arabic-first identity with hand-crafted calligraphic energy and a modern Saudi Sadu rhythm.
-- Product and nutritional claims on this pre-launch site must be verified against final laboratory, SFDA and production data before publication.
+- Promise: “الطعم في اللب / The taste is in the kernel.”
+- Process: vacuum ~0.05 MPa, 60–70°C liquor through the husk; 72–100 mesh outer dust; roast 1.5–2.0% moisture; N2 pack.
+- Packed in Riyadh. Halal. No masala on the front. No TCM/health claims.
+- Retail (Panda / Othaim): umami salt, garlic, spice mix. Chocolate and coffee stay on e-com/café.
+- Kernels stay naturally roasted gold — never a painted or green coating.
 
 This file is a machine-readable navigation aid. It does not guarantee inclusion or ranking in any search or answer engine.
