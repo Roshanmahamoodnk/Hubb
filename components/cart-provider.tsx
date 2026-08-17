@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { flavorById, flavors, starterBundle } from "@/lib/catalog";
+import { flavorById, starterBundle } from "@/lib/catalog";
 
 export type CartLine = { productId: string; quantity: number };
 export type CartNotice = {
@@ -105,7 +105,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         });
         return Array.from(quantities, ([productId, quantity]) => ({ productId, quantity }));
       });
-      setNotice({ key: Date.now(), labelEn: "Seven Crack Box", labelAr: "صندوق السبع قرمشات" });
+      setNotice({ key: Date.now(), labelEn: starterBundle.en, labelAr: starterBundle.ar });
     };
 
     const setQuantity = (productId: string, quantity: number) => {
@@ -128,8 +128,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const product = flavorById(line.productId);
       return total + (product?.priceSar ?? 0) * line.quantity;
     }, 0);
-    const fullSets = lines.length ? Math.min(...flavors.map((flavor) => lines.find((line) => line.productId === flavor.id)?.quantity ?? 0)) : 0;
-    const savings = fullSets * (flavors.reduce((total, flavor) => total + flavor.priceSar, 0) - starterBundle.priceSar);
+    const fullSets = lines.length ? Math.min(...starterBundle.flavorIds.map((id) => lines.find((line) => line.productId === id)?.quantity ?? 0)) : 0;
+    const savings = fullSets * (starterBundle.compareAtSar - starterBundle.priceSar);
     const subtotal = grossSubtotal - savings;
 
     return {

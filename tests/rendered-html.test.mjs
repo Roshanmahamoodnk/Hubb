@@ -44,40 +44,46 @@ async function render(pathname) {
   );
 }
 
-test("renders the seven-SKU shop and bundle", async () => {
+test("renders the process-backed shop and kernel sampler", async () => {
   const response = await render("/shop");
   const html = await response.text();
   assert.equal(response.status, 200);
-  for (const flavor of ["Classic", "Lemon Salt", "Hot &amp; Salt", "Spices", "Ghawa", "Matcha", "Americano"]) assert.match(html, new RegExp(flavor));
-  assert.match(html, /The Seven Crack Box/);
+  for (const flavor of ["Umami salt", "Umami garlic", "Umami capsicum", "Spice mix", "Vanilla caramel chocolate", "Coffee cocoa", "Lemon salt"]) {
+    assert.match(html, new RegExp(flavor));
+  }
+  assert.match(html, /The Kernel Sampler/);
+  assert.doesNotMatch(html, /Matcha/);
+  assert.doesNotMatch(html, /Americano/);
 });
 
-test("keeps Matcha kernels naturally roasted in visible copy and Product data", async () => {
-  const response = await render("/flavors/matcha");
+test("keeps umami kernel infusion in visible copy and Product data", async () => {
+  const response = await render("/flavors/umami-salt");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.match(html, /kernel stays naturally roasted/i);
+  assert.match(html, /Yeast extract/i);
   assert.match(html, /application\/ld\+json/);
-  assert.match(html, /HUBB-MTC-100/);
+  assert.match(html, /HUBB-USA-230-EC/);
+  assert.doesNotMatch(html, /green-coated kernel/i);
 });
 
-test("renders discovery, editorial, account and commerce surfaces", async () => {
-  for (const pathname of ["/taste-lab", "/films", "/story", "/journal", "/account", "/cart", "/checkout", "/admin", "/saudi-sunflower-seeds"]) {
+test("renders discovery, process, editorial, account and commerce surfaces", async () => {
+  for (const pathname of ["/taste-lab", "/films", "/story", "/how-it-works", "/journal", "/account", "/cart", "/checkout", "/admin", "/saudi-sunflower-seeds"]) {
     const response = await render(pathname);
     assert.equal(response.status, 200, pathname);
   }
 });
 
-test("renders the real seven-pack film and short human launch copy", async () => {
+test("renders the ritual film, process number and short launch copy", async () => {
   const response = await render("/");
   const html = await response.text();
   assert.equal(response.status, 200);
+  assert.match(html, /hubb-crack-study\.mp4/);
   assert.match(html, /hubb-seven-worlds\.webm/);
   assert.match(html, /hubb-seven-worlds\.mp4/);
-  assert.match(html, /SEVEN FLAVORS/);
-  assert.match(html, /START WITH ONE/);
-  assert.match(html, /NOW CRACKING/);
-  assert.match(html, /TASTE NOTES/);
+  assert.match(html, /0\.05/);
+  assert.match(html, /الطعم في اللب/);
+  assert.match(html, /film-buy-signal/);
+  assert.match(html, /autoplay/i);
 
   const webm = await stat(new URL("../public/video/hubb-seven-worlds.webm", import.meta.url));
   const mp4 = await stat(new URL("../public/video/hubb-seven-worlds.mp4", import.meta.url));
@@ -91,16 +97,15 @@ test("ships cinematic SKU loops and a macro crack study", async () => {
   assert.equal(response.status, 200);
   assert.match(html, /hubb-crack-study\.mp4/);
   assert.match(html, /loops\/classic\.mp4/);
-  assert.match(html, /SIX SECONDS/);
   const crack = await stat(new URL("../public/video/hubb-crack-study.mp4", import.meta.url));
   assert.ok(crack.size > 200_000);
-  for (const id of ["classic", "lemon-salt", "hot-salt", "spices", "ghawa", "matcha", "americano"]) {
+  for (const id of ["classic", "lemon-salt", "hot-salt", "spices", "ghawa", "americano"]) {
     const loop = await stat(new URL(`../public/video/loops/${id}.mp4`, import.meta.url));
     assert.ok(loop.size > 80_000, id);
   }
 });
 
-test("keeps the first viewport free of external font and eager-film blockers", async () => {
+test("keeps the first viewport free of external font blockers", async () => {
   const response = await render("/");
   const html = await response.text();
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
@@ -110,7 +115,6 @@ test("keeps the first viewport free of external font and eager-film blockers", a
   assert.match(css, /space-grotesk\.woff2/);
   assert.match(css, /noto-kufi-arabic\.woff2/);
   assert.match(html, /<video[^>]*preload="none"/i);
-  assert.doesNotMatch(html, /<video[^>]*autoplay/i);
   assert.match(home, /useMotionValue/);
   assert.doesNotMatch(home, /useState\(\{ x: 0, y: 0 \}\)/);
 
@@ -162,19 +166,19 @@ test("serves an installable manifest with HUBB shortcuts", async () => {
 test("updates the installed app without hanging on a weak connection", async () => {
   const serviceWorker = await readFile(new URL("../public/sw.js", import.meta.url), "utf8");
   const registration = await readFile(new URL("../components/experience-layer.tsx", import.meta.url), "utf8");
-  assert.match(serviceWorker, /hubb-shell-v6/);
+  assert.match(serviceWorker, /hubb-shell-v8/);
   assert.match(serviceWorker, /NAVIGATION_TIMEOUT_MS = 4000/);
   assert.match(serviceWorker, /staleWhileRevalidate/);
   assert.match(registration, /document\.readyState === "complete"/);
   assert.match(registration, /registration\.update\(\)/);
 });
 
-test("keeps the seven-box saving aligned with the future server total", async () => {
+test("keeps the sampler saving aligned with the future server total", async () => {
   const provider = await readFile(new URL("../components/cart-provider.tsx", import.meta.url), "utf8");
   const sql = await readFile(new URL("../supabase/hubb-commerce.sql", import.meta.url), "utf8");
   assert.match(provider, /starterBundle\.priceSar/);
   assert.match(sql, /discount_sar/);
-  assert.match(sql, /full_set_quantity \* 3\.00/);
+  assert.match(sql, /full_set_quantity \* 20\.40/);
   assert.match(sql, /revoke all on function public\.create_order/);
   assert.match(sql, /grant execute on function public\.create_order\(jsonb, jsonb\) to authenticated/);
   assert.match(sql, /drop policy if exists "orders_select_own_or_admin"/);
