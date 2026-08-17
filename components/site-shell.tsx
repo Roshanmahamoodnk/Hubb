@@ -7,14 +7,13 @@ import { AnimatePresence, motion } from "motion/react";
 import { flavorById, formatSar } from "@/lib/catalog";
 import { useCart } from "@/components/cart-provider";
 import { ExperienceLayer } from "@/components/experience-layer";
-import { useLanguage } from "@/lib/language";
 
 const navigation = [
   { href: "/shop", en: "Shop", ar: "تسوّق" },
-  { href: "/how-it-works", en: "How it works", ar: "كيف تطقّها" },
   { href: "/taste-lab", en: "Taste Lab", ar: "مختبر النكهة" },
   { href: "/films", en: "Films", ar: "أفلام" },
   { href: "/story", en: "Our Story", ar: "قصتنا" },
+  { href: "/journal", en: "Journal", ar: "المجلة" },
 ];
 
 export function SiteShell({ children }: { children: ReactNode }) {
@@ -33,7 +32,6 @@ export function SiteShell({ children }: { children: ReactNode }) {
 export function SiteHeader() {
   const pathname = usePathname();
   const { count, setOpen } = useCart();
-  const { language, toggleLanguage } = useLanguage();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -48,10 +46,9 @@ export function SiteHeader() {
     <>
       <div className="signal-strip" aria-hidden="true">
         <div>
-          <span>الطعم في اللب</span><i>✦</i><span>THE TASTE IS IN THE KERNEL</span><i>✦</i>
-          <span>PACKED IN RIYADH · HALAL</span><i>✦</i><span>معبّأ في الرياض · حلال</span><i>✦</i>
-          <span>0.05 MPa</span><i>✦</i><span>اللب متبّل أصلًا</span><i>✦</i>
-          <span>الطعم في اللب</span><i>✦</i><span>THE TASTE IS IN THE KERNEL</span><i>✦</i>
+          <span>النكهة في اللُّب</span><i>✦</i><span>FLAVOR IN THE KERNEL</span><i>✦</i>
+          <span>7 FLAVORS · ONE CRACK</span><i>✦</i><span>٧ نكهات · قرمشة واحدة</span><i>✦</i>
+          <span>النكهة في اللُّب</span><i>✦</i><span>FLAVOR IN THE KERNEL</span><i>✦</i>
         </div>
       </div>
       <header className={`global-header ${scrolled ? "is-scrolled" : ""}`}>
@@ -68,9 +65,9 @@ export function SiteHeader() {
         </nav>
 
         <div className="global-actions">
-          <button className="language-link" type="button" onClick={toggleLanguage} aria-label={language === "ar" ? "Switch to English" : "التبديل إلى العربية"}>
-            {language === "ar" ? "EN" : "ع"}
-          </button>
+          <Link className="language-link" href={pathname.startsWith("/en") ? "/" : "/en"}>
+            {pathname.startsWith("/en") ? "ع" : "EN"}
+          </Link>
           <Link className="account-link" href="/account" aria-label="Account">◎</Link>
           <button className="cart-trigger" data-cursor="BAG" onClick={() => setOpen(true)} aria-label={`Open bag, ${count} items`}>
             BAG <motion.span key={count} initial={{ scale: 1.45 }} animate={{ scale: 1 }}>{String(count).padStart(2, "0")}</motion.span>
@@ -88,8 +85,7 @@ export function SiteHeader() {
               <Link href={item.href} key={item.href} onClick={() => setMenuOpen(false)}><span>0{index + 1}</span><b>{item.ar}</b><small>{item.en}</small></Link>
             ))}
             <Link href="/saudi-sunflower-seeds" onClick={() => setMenuOpen(false)}><span>06</span><b>دليل الحب</b><small>SEED GUIDE</small></Link>
-            <Link href="/journal" onClick={() => setMenuOpen(false)}><span>07</span><b>المجلة</b><small>JOURNAL</small></Link>
-            <Link href="/account" onClick={() => setMenuOpen(false)}><span>08</span><b>حسابي</b><small>FIRST CRACK CLUB</small></Link>
+            <Link href="/account" onClick={() => setMenuOpen(false)}><span>07</span><b>حسابي</b><small>FIRST CRACK CLUB</small></Link>
           </motion.nav>
         ) : null}
       </AnimatePresence>
@@ -99,7 +95,6 @@ export function SiteHeader() {
 
 function CartDrawer() {
   const { lines, subtotal, savings, isOpen, setOpen, setQuantity, remove } = useCart();
-  const { t } = useLanguage();
   const closeRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
 
@@ -134,7 +129,7 @@ function CartDrawer() {
           <motion.aside ref={drawerRef} className="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping bag" initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
             <div className="drawer-head"><p>حقيبتك <span>YOUR BAG</span></p><button ref={closeRef} onClick={() => setOpen(false)}>CLOSE ×</button></div>
             {lines.length === 0 ? (
-              <div className="empty-cart"><span>◒</span><h2>{t("ما في طقّات بعد.", "NO CRACKS YET.")}</h2><p>{t("ابدأ بنكهتك الأولى.", "Start with your first flavor.")}</p><Link href="/shop" onClick={() => setOpen(false)}>{t("تسوّق الخط ↗", "SHOP THE LINE ↗")}</Link></div>
+              <div className="empty-cart"><span>◒</span><h2>NO CRACKS YET.</h2><p>ابدأ بنكهتك الأولى.</p><Link href="/shop" onClick={() => setOpen(false)}>SHOP ALL 7 ↗</Link></div>
             ) : (
               <>
                 <div className="drawer-lines">
@@ -185,17 +180,16 @@ function CartNotice() {
 }
 
 export function SiteFooter() {
-  const { t } = useLanguage();
   return (
     <footer className="global-footer">
-      <div className="footer-statement"><img src="/brand/hubb-logo.webp" alt="HUBB حُبّ" /><h2>{t("الطعم في اللب.", "THE TASTE IS")}<br /><span>{t("في كل طقّة.", "IN THE KERNEL.")}</span></h2></div>
+      <div className="footer-statement"><img src="/brand/hubb-logo.webp" alt="HUBB حُبّ" /><h2>SEVEN FLAVORS.<br /><span>START WITH ONE.</span></h2></div>
       <div className="footer-grid">
-        <div><p>EXPLORE</p>{navigation.map((item) => <Link href={item.href} key={item.href}>{item.en}</Link>)}<Link href="/journal">Journal</Link></div>
+        <div><p>EXPLORE</p>{navigation.map((item) => <Link href={item.href} key={item.href}>{item.en}</Link>)}</div>
         <div><p>COMMERCE</p><Link href="/cart">Bag</Link><Link href="/account">Account</Link><Link href="/policies/shipping">Shipping & returns</Link></div>
-        <div><p>DISCOVER</p><Link href="/saudi-sunflower-seeds">Saudi seed guide</Link><Link href="/how-it-works">How to crack</Link><Link href="/journal/how-to-eat-sunflower-seeds">The clean crack</Link></div>
+        <div><p>DISCOVER</p><Link href="/saudi-sunflower-seeds">Saudi seed guide</Link><Link href="/journal/how-to-eat-sunflower-seeds">How to crack</Link><Link href="/journal/saudi-match-night-snack-ritual">Match-night ritual</Link></div>
         <div className="footer-newsletter"><p>FIRST CRACK CLUB</p><h3>نكهتك قبل الكل.</h3><span>New drops. Short notes. No noise.</span><Link href="/account">JOIN THE CLUB ↗</Link></div>
       </div>
-      <div className="footer-legal"><span>© 2026 HUBB · PACKED IN RIYADH</span><span>ARABIC-FIRST · HALAL · ROZANA MILL</span><span><Link href="/policies/privacy">PRIVACY</Link> · <Link href="/policies/terms">TERMS</Link></span></div>
+      <div className="footer-legal"><span>© 2026 HUBB · SAUDI ARABIA</span><span>ARABIC-FIRST · HUMAN-MADE</span><span><Link href="/policies/privacy">PRIVACY</Link> · <Link href="/policies/terms">TERMS</Link></span></div>
     </footer>
   );
 }

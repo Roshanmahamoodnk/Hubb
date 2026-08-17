@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     id: "/",
     name: "HUBB حُبّ — Flavor in the Kernel",
     short_name: "HUBB",
-    description: "Process-backed Saudi sunflower seeds. Vacuum kernel infusion. The perfect crack — every time.",
+    description: "Seven Saudi sunflower-seed flavors. Pick tonight’s crack.",
     lang: "ar-SA",
     dir: "rtl",
     start_url: "/",
@@ -19,7 +19,7 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: "/icons/hubb-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: "Shop the line", short_name: "Shop", url: "/shop", icons: [{ src: "/icons/hubb-192.png", sizes: "192x192" }] },
+      { name: "Shop all seven", short_name: "Shop", url: "/shop", icons: [{ src: "/icons/hubb-192.png", sizes: "192x192" }] },
       { name: "Find my flavor", short_name: "Taste Lab", url: "/taste-lab", icons: [{ src: "/icons/hubb-192.png", sizes: "192x192" }] },
     ],
   };
