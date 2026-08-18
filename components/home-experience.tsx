@@ -41,17 +41,12 @@ function useCinemaPolicy() {
   return { reducedMotion, isMobile, saveData };
 }
 
-function formatFilmTime(value: number) {
-  const seconds = Math.max(0, Math.floor(value));
-  return `00:${String(seconds).padStart(2, "0")}`;
-}
-
 function CinemaSources() {
   return (
     <>
       <source src="/video/hubb-seven-worlds-mobile.mp4" type="video/mp4" media="(max-width: 720px)" />
-      <source src="/video/hubb-seven-worlds.webm" type="video/webm" />
-      <source src="/video/hubb-seven-worlds.mp4" type="video/mp4" />
+      <source src="/video/hubb-seven-worlds-cinema.webm" type="video/webm" media="(min-width: 721px)" />
+      <source src="/video/hubb-seven-worlds-cinema.mp4" type="video/mp4" />
     </>
   );
 }
@@ -129,7 +124,7 @@ function Hero({ language }: { language: Language }) {
           muted
           loop
           playsInline
-          preload="none"
+          preload={saveData ? "none" : "metadata"}
           poster={isMobile ? "/video/hubb-seven-worlds-mobile-poster.webp" : "/video/hubb-seven-worlds-poster.webp"}
           tabIndex={-1}
           onPlay={() => setPlaying(true)}
@@ -273,82 +268,33 @@ function MomentPicker() {
 function FilmStage() {
   const [active, setActive] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(CINEMA_DURATION);
-  const stageRef = useRef<HTMLElement>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const userPaused = useRef(false);
-  const { reducedMotion, isMobile, saveData } = useCinemaPolicy();
+  const { reducedMotion } = useCinemaPolicy();
   const { add } = useCart();
   const flavor = flavors[active];
 
   useEffect(() => {
-    const video = videoRef.current;
-    const stage = stageRef.current;
-    if (!video || !stage || reducedMotion) {
-      video?.pause();
-      return;
-    }
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !saveData && !userPaused.current) void video.play().catch(() => undefined);
-      else video.pause();
-    }, { threshold: 0.42 });
-    const onVisibility = () => {
-      if (document.hidden) video.pause();
-      else if (!saveData && !userPaused.current && stage.getBoundingClientRect().top < window.innerHeight) void video.play().catch(() => undefined);
-    };
-    observer.observe(stage);
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => {
-      observer.disconnect();
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
-  }, [reducedMotion, saveData]);
+    if (!playing || reducedMotion) return;
+    const timer = window.setInterval(() => setActive((current) => (current + 1) % flavors.length), 2400);
+    return () => window.clearInterval(timer);
+  }, [playing, reducedMotion]);
 
-  const toggle = async () => {
-    const video = videoRef.current;
-    if (!video || reducedMotion) return;
-    if (video.paused) {
-      userPaused.current = false;
-      await video.play().catch(() => undefined);
-    } else {
-      userPaused.current = true;
-      video.pause();
-    }
-  };
-
-  const jump = async (index: number) => {
-    const video = videoRef.current;
+  const jump = (index: number) => {
     setActive(index);
-    if (!video || reducedMotion) return;
-    video.currentTime = index * CINEMA_CHAPTER + 0.08;
-    userPaused.current = false;
-    await video.play().catch(() => undefined);
-  };
-
-  const enterFullscreen = async () => {
-    const video = videoRef.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
-    if (frameRef.current?.requestFullscreen) {
-      await frameRef.current.requestFullscreen().catch(() => undefined);
-      return;
-    }
-    video?.webkitEnterFullscreen?.();
+    setPlaying(false);
   };
 
   return (
-    <section className="film-stage" id="film" ref={stageRef} style={{ "--film-accent": flavor.color, "--film-pale": flavor.pale } as CSSProperties}>
-      <div ref={frameRef} className="film-frame film-is-real" data-playing={playing}>
-        <video ref={videoRef} muted loop playsInline preload={saveData ? "none" : "metadata"} poster={isMobile ? "/video/hubb-seven-worlds-mobile-poster.webp" : "/video/hubb-seven-worlds-poster.webp"} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onLoadedMetadata={(event) => setDuration(event.currentTarget.duration || CINEMA_DURATION)} onTimeUpdate={(event) => {
-          const time = event.currentTarget.currentTime;
-          setCurrentTime(time);
-          setActive(Math.min(flavors.length - 1, Math.floor(time / CINEMA_CHAPTER)));
-        }}>
-          <CinemaSources />
-        </video>
-        <div className="film-shade" />
-        <button type="button" className="film-play" data-cursor="PLAY" aria-label="Play HUBB brand film" onClick={() => void toggle()} disabled={reducedMotion}><span>▶</span><small>PLAY<br />00:15 BRAND FILM</small></button>
+    <section className="film-stage pack-cinema" id="film" style={{ "--film-accent": flavor.color, "--film-pale": flavor.pale } as CSSProperties}>
+      <div className="pack-cinema-frame" data-playing={playing} data-world={flavor.number}>
+        <div className="pack-cinema-word" lang="ar" aria-hidden="true">{flavor.ar}</div>
+        <div className="pack-cinema-grid" aria-hidden="true" />
         <div className="film-copy"><p>{flavor.number} / 07 · {flavor.ar}</p><h2>SEVEN WORLDS.<br /><em>ONE CRACK.</em></h2><span>{flavor.en.toUpperCase()} · {flavor.moodEn.toUpperCase()}</span></div>
+        <AnimatePresence mode="wait">
+          <motion.div className="pack-cinema-product" key={flavor.id} initial={reducedMotion ? false : { opacity: 0, scale: .78, rotate: -7, y: 70 }} animate={{ opacity: 1, scale: 1, rotate: 2, y: 0 }} exit={reducedMotion ? undefined : { opacity: 0, scale: 1.12, rotate: 8, y: -45 }} transition={{ duration: .72, ease: [0.16, 1, 0.3, 1] }}>
+            <img src={flavor.image} alt={`HUBB ${flavor.en} pack`} loading="lazy" decoding="async" />
+            <i aria-hidden="true" />
+          </motion.div>
+        </AnimatePresence>
         <AnimatePresence mode="wait">
           <motion.aside className="film-buy-signal" key={flavor.id} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }}>
             <img src={flavor.image} alt="" loading="lazy" decoding="async" />
@@ -358,18 +304,13 @@ function FilmStage() {
           </motion.aside>
         </AnimatePresence>
       </div>
-      <div className="cinema-controls" role="group" aria-label="HUBB brand film controls">
-        <button type="button" className="cinema-toggle" onClick={() => void toggle()} disabled={reducedMotion} aria-label={playing ? "Pause HUBB brand film" : "Play HUBB brand film"}><span aria-hidden="true">{playing ? "Ⅱ" : "▶"}</span>{playing ? "PAUSE" : "PLAY"}</button>
-        <label className="cinema-scrubber"><span className="sr-only">Film position</span><input type="range" min="0" max={duration} step="0.01" value={Math.min(currentTime, duration)} disabled={reducedMotion} onChange={(event) => {
-          const value = Number(event.currentTarget.value);
-          if (videoRef.current) videoRef.current.currentTime = value;
-          setCurrentTime(value);
-          setActive(Math.min(flavors.length - 1, Math.floor(value / CINEMA_CHAPTER)));
-        }} style={{ "--film-progress": `${duration ? (currentTime / duration) * 100 : 0}%` } as CSSProperties} /></label>
-        <span className="cinema-time">{formatFilmTime(currentTime)} / {formatFilmTime(duration)}</span>
-        <button type="button" className="cinema-fullscreen" onClick={() => void enterFullscreen()}>FULL SCREEN ↗</button>
+      <div className="cinema-controls pack-cinema-controls" role="group" aria-label="Seven flavor presentation controls">
+        <button type="button" className="cinema-toggle" onClick={() => setPlaying((value) => !value)} disabled={reducedMotion} aria-label={playing ? "Pause flavor presentation" : "Play flavor presentation"}><span aria-hidden="true">{playing ? "Ⅱ" : "▶"}</span>{reducedMotion ? "STILL MODE" : playing ? "PAUSE" : "AUTO PLAY"}</button>
+        <div className="pack-cinema-meter" aria-hidden="true"><i style={{ width: `${((active + 1) / flavors.length) * 100}%` }} /></div>
+        <span className="cinema-time">WORLD {flavor.number} / 07</span>
+        <Link className="pack-cinema-film-link" href="/films">REAL FILM ARCHIVE ↗</Link>
       </div>
-      <div className="film-chapters">{flavors.map((item, index) => <button type="button" key={item.id} className={index === active ? "is-active" : ""} style={{ "--chapter": item.color } as CSSProperties} onClick={() => void jump(index)} aria-label={`Play ${item.en} chapter`}><span>{item.number}</span>{item.en}</button>)}</div>
+      <div className="film-chapters">{flavors.map((item, index) => <button type="button" key={item.id} className={index === active ? "is-active" : ""} style={{ "--chapter": item.color } as CSSProperties} onClick={() => jump(index)} aria-label={`Show ${item.en} world`} aria-pressed={index === active}><span>{item.number}</span>{item.en}</button>)}</div>
     </section>
   );
 }
