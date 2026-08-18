@@ -186,7 +186,7 @@ export function SiteFooter() {
       <div className="footer-grid">
         <div><p>EXPLORE</p>{navigation.map((item) => <Link href={item.href} key={item.href}>{item.en}</Link>)}</div>
         <div><p>COMMERCE</p><Link href="/cart">Bag</Link><Link href="/account">Account</Link><Link href="/policies/shipping">Shipping & returns</Link></div>
-        <div><p>DISCOVER</p><Link href="/saudi-sunflower-seeds">Saudi seed guide</Link><Link href="/journal/how-to-eat-sunflower-seeds">How to crack</Link><Link href="/journal/saudi-match-night-snack-ritual">Match-night ritual</Link></div>
+        <div><p>DISCOVER</p><Link href="/saudi-sunflower-seeds">Saudi seed guide</Link><Link href="/journal/how-to-eat-sunflower-seeds">How to crack</Link><Link href="/journal/saudi-match-night-snack-ritual">Match-night ritual</Link><Link href="/creators">Create with HUBB</Link></div>
         <div className="footer-newsletter"><p>FIRST CRACK CLUB</p><h3>نكهتك قبل الكل.</h3><span>New drops. Short notes. No noise.</span><Link href="/account">JOIN THE CLUB ↗</Link></div>
       </div>
       <div className="footer-legal"><span>© 2026 HUBB · SAUDI ARABIA</span><span>ARABIC-FIRST · HUMAN-MADE</span><span><Link href="/policies/privacy">PRIVACY</Link> · <Link href="/policies/terms">TERMS</Link></span></div>
